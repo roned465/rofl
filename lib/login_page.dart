@@ -1,3 +1,5 @@
+import 'package:flushbar/flushbar.dart';
+import 'package:flushbar/flushbar_route.dart';
 import 'package:flutter/material.dart';
 import 'primary_button.dart';
 import 'auth.dart';
@@ -20,6 +22,31 @@ enum FormType {
   register
 }
 
+void showFloatingFlushbar(BuildContext context, var message) {
+  Flushbar(
+    duration: new Duration(seconds: 4),
+    borderRadius: 8,
+    backgroundGradient: LinearGradient(
+      colors: [Colors.orange.shade800, Colors.yellowAccent.shade700],
+      stops: [0.6, 1],
+    ),
+    boxShadows: [
+      BoxShadow(
+        color: Colors.black45,
+        offset: Offset(3, 3),
+        blurRadius: 3,
+      ),
+    ],
+    // All of the previous Flushbars could be dismissed by swiping down
+    // now we want to swipe to the sides
+    dismissDirection: FlushbarDismissDirection.VERTICAL,
+    // The default curve is Curves.easeOut
+    forwardAnimationCurve: Curves.fastLinearToSlowEaseIn,
+    title: 'Wrong information entered:',
+    message: message,
+  )..show(context);
+}
+
 class _LoginPageState extends State<LoginPage> {
   static final formKey = new GlobalKey<FormState>();
 
@@ -37,7 +64,7 @@ class _LoginPageState extends State<LoginPage> {
     return false;
   }
   
-  void validateAndSubmit() async {
+  void validateAndSubmit(BuildContext context) async {
     var errorMessage = "";
     if (validateAndSave()) {
       try {
@@ -76,12 +103,7 @@ class _LoginPageState extends State<LoginPage> {
         setState(() {
           _authHint = 'Sign In Error\n\n${e.toString()}';
           print(e);
-          _scaffoldKey.currentState.showSnackBar(
-            SnackBar(
-              content: new Text(errorMessage),
-              duration: new Duration(seconds: 5),
-            )
-          );
+          showFloatingFlushbar(context, errorMessage);
         });
 
       }
@@ -112,9 +134,8 @@ class _LoginPageState extends State<LoginPage> {
     return [
       padded(child: new TextFormField(
         key: new Key('email'),
-        decoration: new InputDecoration(labelText: 'Email'),
+        decoration: new InputDecoration(labelText: 'Email', fillColor: Colors.deepOrange),
         autocorrect: false,
-        validator: (val) => val.isEmpty ? 'Email can\'t be empty.' : null,
         onSaved: (val) => _email = val,
       )),
       padded(child: new TextFormField(
@@ -122,21 +143,21 @@ class _LoginPageState extends State<LoginPage> {
         decoration: new InputDecoration(labelText: 'Password'),
         obscureText: true,
         autocorrect: false,
-        validator: (val) => val.isEmpty ? 'Password can\'t be empty.' : null,
         onSaved: (val) => _password = val,
       )),
     ];
   }
 
-  List<Widget> submitWidgets() {
+  List<Widget> submitWidgets(BuildContext context) {
     switch (_formType) {
       case FormType.login:
         return [
           new PrimaryButton(
+
             key: new Key('login'),
             text: 'Login',
             height: 44.0,
-            onPressed: validateAndSubmit
+            onPressed: () => validateAndSubmit(context),
           ),
           new FlatButton(
             key: new Key('need-account'),
@@ -150,7 +171,7 @@ class _LoginPageState extends State<LoginPage> {
             key: new Key('register'),
             text: 'Create an account',
             height: 44.0,
-            onPressed: validateAndSubmit
+            onPressed: () => validateAndSubmit(context),
           ),
           new FlatButton(
             key: new Key('need-login'),
@@ -179,9 +200,21 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return new Scaffold(
       key: _scaffoldKey,
-      appBar: new AppBar(
-        title: new Text(widget.title),
-      ),
+        appBar: AppBar(
+          centerTitle: true,
+          title: new Text(widget.title),
+          flexibleSpace: Container(
+            decoration: BoxDecoration(
+                gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: <Color>[
+                      Colors.yellow,
+                      Colors.deepOrangeAccent
+                    ])
+            ),
+          ),
+        ),
       backgroundColor: Colors.grey[300],
       body: new SingleChildScrollView(child: new Container(
         padding: const EdgeInsets.all(16.0),
@@ -197,7 +230,7 @@ class _LoginPageState extends State<LoginPage> {
                         key: formKey,
                         child: new Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: usernameAndPassword() + submitWidgets(),
+                          children: usernameAndPassword() + submitWidgets(context),
                         )
 
                     )
