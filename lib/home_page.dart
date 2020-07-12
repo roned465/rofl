@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'auth.dart';
+import 'add_event.dart';
 
 class HomePage extends StatelessWidget {
   HomePage({this.auth, this.onSignOut});
@@ -28,12 +29,43 @@ class HomePage extends StatelessWidget {
           )
         ],
       ),
-      body: new Center(
-        child: new Text(
-          'Welcome',
-          style: new TextStyle(fontSize: 32.0),
+      body: Column(
+          children: <Widget>[
+        Flexible(
+          child: ListView(
+            scrollDirection: Axis.vertical,
+            shrinkWrap: true,
+            children: <Widget>[
+              ListTile(
+                title: Text('Event1'),
+                onTap: () {
+                  // Update the state of the app.
+                  // ...
+                },
+              ),
+              ListTile(
+                title: Text('Event2'),
+                onTap: () {
+                  // Update the state of the app.
+                  // ...
+                },
+              ),
+            ],
+          ),
         ),
-      )
+    ],
+    ),
+
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AddEvent()));
+
+          },
+            child: Icon(Icons.add),
+            backgroundColor: Colors.blue,
+    )
     );
   }
 }
