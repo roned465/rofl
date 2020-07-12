@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'primary_button.dart';
 import 'auth.dart';
 
+final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
 class LoginPage extends StatefulWidget {
   LoginPage({Key key, this.title, this.auth, this.onSignIn}) : super(key: key);
 
@@ -36,6 +38,7 @@ class _LoginPageState extends State<LoginPage> {
   }
   
   void validateAndSubmit() async {
+    var errorMessage = "";
     if (validateAndSave()) {
       try {
         String userId = _formType == FormType.login
@@ -46,11 +49,41 @@ class _LoginPageState extends State<LoginPage> {
         });
         widget.onSignIn();
       }
+
       catch (e) {
+        switch (e.code) {
+          case "ERROR_INVALID_EMAIL":
+            errorMessage = "Your email address appears to be malformed.";
+            break;
+          case "ERROR_WRONG_PASSWORD":
+            errorMessage = "Bad Email or Password";
+            break;
+          case "ERROR_USER_NOT_FOUND":
+            errorMessage = "Bad Email or Password";
+            break;
+          case "ERROR_USER_DISABLED":
+            errorMessage = "User with this email has been disabled.";
+            break;
+          case "ERROR_TOO_MANY_REQUESTS":
+            errorMessage = "Too many requests. Try again later.";
+            break;
+          case "ERROR_OPERATION_NOT_ALLOWED":
+            errorMessage = "Signing in with Email and Password is not enabled.";
+            break;
+          default:
+            errorMessage = "An undefined Error happened.";
+        }
         setState(() {
           _authHint = 'Sign In Error\n\n${e.toString()}';
+          print(e);
+          _scaffoldKey.currentState.showSnackBar(
+            SnackBar(
+              content: new Text(errorMessage),
+              duration: new Duration(seconds: 5),
+            )
+          );
         });
-        print(e);
+
       }
     } else {
       setState(() {
@@ -145,6 +178,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
+      key: _scaffoldKey,
       appBar: new AppBar(
         title: new Text(widget.title),
       ),
@@ -165,13 +199,16 @@ class _LoginPageState extends State<LoginPage> {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: usernameAndPassword() + submitWidgets(),
                         )
+
                     )
                 ),
               ])
             ),
-            hintText()
+
           ]
+
         )
+
       ))
     );
   }
