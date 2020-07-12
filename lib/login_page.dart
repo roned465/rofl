@@ -76,10 +76,9 @@ class _LoginPageState extends State<LoginPage> {
         if (_formType == FormType.login) {
           userId = await widget.auth.signIn(_email, _password);
         } else {
-          if(_password != _confirmpassword)
-            {
-              throw new PasswordsException();
-            }
+          if (_password != _confirmpassword) {
+            throw new PasswordsException();
+          }
           userId = await widget.auth.createUser(_email, _password);
         }
         setState(() {
@@ -314,22 +313,35 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
+
         key: _scaffoldKey,
         appBar: AppBar(
           centerTitle: true,
-          title: new Text(widget.title),
+          title: new Text(
+            widget.title,
+            style: TextStyle(
+              fontSize: 40,
+              foreground: Paint()
+                ..style = PaintingStyle.fill
+                ..strokeWidth = 1
+                ..color = Colors.red[700],
+            ),
+          ),
           flexibleSpace: Container(
             decoration: BoxDecoration(
                 gradient: LinearGradient(
                     begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: <Color>[Colors.yellow, Colors.deepOrangeAccent])),
+                    end: Alignment.topLeft,
+                    colors: <Color>[Colors.yellow[100], Colors.yellow[100]])),
           ),
         ),
-        backgroundColor: Colors.grey[300],
+        backgroundColor: Colors.yellow[100],
         body: new SingleChildScrollView(
+
             child: new Container(
                 padding: const EdgeInsets.all(16.0),
+
+
                 child: new Column(children: [
                   new Card(
                       child: new Column(
@@ -337,6 +349,15 @@ class _LoginPageState extends State<LoginPage> {
                           children: <Widget>[
                         new Container(
                             padding: const EdgeInsets.all(16.0),
+                            decoration:
+                            BoxDecoration(
+                              border: Border.all(
+                                color: Colors.red
+                              ),
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(5.0)
+                              )
+                            ),
                             child: new Form(
                                 key: formKey,
                                 child: new Column(
