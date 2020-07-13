@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:rofl/add_friends_groups.dart';
 import 'auth.dart';
+import 'add_friends_groups.dart';
 import 'add_event.dart';
 
 class HomePage extends StatelessWidget {
@@ -177,7 +179,7 @@ class HomePage extends StatelessWidget {
           floatingActionButton: FloatingActionButton(
             onPressed: () {
               Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => AddEvent()));
+                  context, MaterialPageRoute(builder: (context) => AddFriends()));
             },
             child: Icon(Icons.add, color: Colors.deepOrange,),
             backgroundColor: Colors.yellow[100],
