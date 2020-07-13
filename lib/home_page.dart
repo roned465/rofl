@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:rofl/add_friends_groups.dart';
 import 'auth.dart';
 import 'add_friends_groups.dart';
-import 'add_event.dart';
+import 'package:rofl/add_event.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({this.auth, this.onSignOut, Key key}) : super(key: key);
@@ -183,8 +183,8 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
                 ListTile(
                   title: Text('add event'),
                   onTap: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => AddEvent()));
+                    Navigator.push(
+                        context, MaterialPageRoute(builder: (context) => CreateEvent()));
                   },
                 ),
                 ListTile(
@@ -210,7 +210,7 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
               switch(tabIndex){
                 case 0: {
                   Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => AddEvent()));
+                    MaterialPageRoute(builder: (context) => CreateEvent()));
                   break;
                 }
                 case 1: {

@@ -74,6 +74,7 @@ class _LoginPageState extends State<LoginPage> {
     if (validateAndSave()) {
       try {
         if (_formType == FormType.login) {
+          print(_email);
           userId = await widget.auth.signIn(_email, _password);
         } else {
           if (_password != _confirmpassword) {
