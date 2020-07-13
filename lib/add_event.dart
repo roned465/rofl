@@ -18,13 +18,9 @@ class AddEvent extends StatelessWidget {
               },
               child: Text('Create'),
             ),
-
           ),
         ],
-
       ),
-
-
     );
   }
 }
