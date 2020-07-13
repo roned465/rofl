@@ -16,7 +16,7 @@ class Post {
 //class _AddFriends extends State<AddFriends>{
 class AddFriends extends StatelessWidget {
   Future<List<Post>> search(String search) async {
-    await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(Duration(seconds:0));
     if (search == "empty") return [];
     if (search == "error") throw Error();
     return List.generate(search.length, (int index) {

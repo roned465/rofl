@@ -5,6 +5,7 @@ dependencies:
   flutter:
     sdk: flutter
   flushbar: ^1.5.0
+  grouped_buttons: ^1.0.3
   gradient_app_bar: ^0.0.1
   flappy_search_bar: 1.4.1
   flutter_datetime_picker:

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:rofl/add_friends_groups.dart';
 import 'auth.dart';
 import 'add_friends_groups.dart';
-import 'add_event.dart';
+import 'package:rofl/add_event.dart';
 
 class HomePage extends StatelessWidget {
   HomePage({this.auth, this.onSignOut});
@@ -157,7 +157,7 @@ class HomePage extends StatelessWidget {
                   title: Text('add event'),
                   onTap: () {
                     Navigator.push(
-                        context, MaterialPageRoute(builder: (context) => AddEvent()));
+                        context, MaterialPageRoute(builder: (context) => CreateEvent()));
                   },
                 ),
                 ListTile(
