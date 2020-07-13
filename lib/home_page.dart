@@ -9,6 +9,7 @@ class HomePage extends StatelessWidget {
   final VoidCallback onSignOut;
   final tab = new TabBar(
     labelColor: Colors.deepOrange,
+      indicatorColor: Colors.deepOrange,
       tabs: <Tab>[
     new Tab(
       icon: new Icon(Icons.event, color: Colors.deepOrange),
