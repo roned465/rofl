@@ -154,10 +154,10 @@ class HomePage extends StatelessWidget {
                   ),
                 ),
                 ListTile(
-                  title: Text('ROFL'),
+                  title: Text('add event'),
                   onTap: () {
-                    // Update the state of the app.
-                    // ...
+                    Navigator.push(
+                        context, MaterialPageRoute(builder: (context) => AddEvent()));
                   },
                 ),
                 ListTile(
