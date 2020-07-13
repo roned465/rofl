@@ -7,7 +7,9 @@ dependencies:
   flushbar: ^1.5.0
   gradient_app_bar: ^0.0.1
   flappy_search_bar: 1.4.1
-
+  flutter_datetime_picker:
+    git:
+      url: https://github.com/derohimat/flutter_datetime_picker.git
 
 
 
