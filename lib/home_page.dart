@@ -7,17 +7,20 @@ class HomePage extends StatelessWidget {
 
   final BaseAuth auth;
   final VoidCallback onSignOut;
-  final tab = new TabBar(tabs: <Tab>[
+  final tab = new TabBar(
+    labelColor: Colors.deepOrange,
+      tabs: <Tab>[
     new Tab(
-      icon: new Icon(Icons.event),
+      icon: new Icon(Icons.event, color: Colors.deepOrange),
       text: "Events",
     ),
     new Tab(
-      icon: new Icon(Icons.group),
+      icon: new Icon(Icons.group, color: Colors.deepOrange),
       text: "Groups",
+
     ),
     new Tab(
-      icon: new Icon(Icons.account_circle),
+      icon: new Icon(Icons.account_circle, color: Colors.deepOrange),
       text: "Friends",
     ),
   ]);
@@ -112,12 +115,20 @@ class HomePage extends StatelessWidget {
         length: 3,
         child: Scaffold(
           appBar: new AppBar(
+            iconTheme: new IconThemeData(color: Colors.deepOrange),
+              flexibleSpace: Container(
+                decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.topLeft,
+                        colors: <Color>[Colors.yellow[100], Colors.yellow[100]])),
+              ),
             actions: <Widget>[
               new FlatButton(
                   onPressed: _signOut,
                   child: new Text('Logout',
                       style:
-                          new TextStyle(fontSize: 17.0, color: Colors.white))),
+                          new TextStyle(fontSize: 17.0, color: Colors.deepOrange))),
             ],
             bottom: tab,
           ),
@@ -127,14 +138,16 @@ class HomePage extends StatelessWidget {
             ],
           ),
           drawer: Drawer(
+
             child: ListView(
+
               // Important: Remove any padding from the ListView.
               padding: EdgeInsets.zero,
               children: <Widget>[
                 DrawerHeader(
-                  child: Text('Settings'),
+                  child: Text('Settings', style: new TextStyle(color: Colors.yellow[100]),),
                   decoration: BoxDecoration(
-                    color: Colors.blue,
+                    color: Colors.deepOrange,
                   ),
                 ),
                 ListTile(
@@ -165,8 +178,8 @@ class HomePage extends StatelessWidget {
               Navigator.push(
                   context, MaterialPageRoute(builder: (context) => AddEvent()));
             },
-            child: Icon(Icons.add),
-            backgroundColor: Colors.blue,
+            child: Icon(Icons.add, color: Colors.deepOrange,),
+            backgroundColor: Colors.yellow[100],
           ),
         ),
       ),
