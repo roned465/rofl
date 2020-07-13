@@ -28,7 +28,7 @@ void showFloatingFlushbar(BuildContext context, var message) {
     duration: new Duration(seconds: 4),
     borderRadius: 8,
     backgroundGradient: LinearGradient(
-      colors: [Colors.orange.shade800, Colors.yellowAccent.shade700],
+      colors: [Colors.deepOrange.shade300, Colors.yellow.shade300],
       stops: [0.6, 1],
     ),
     boxShadows: [
@@ -42,7 +42,7 @@ void showFloatingFlushbar(BuildContext context, var message) {
     // now we want to swipe to the sides
     dismissDirection: FlushbarDismissDirection.VERTICAL,
     // The default curve is Curves.easeOut
-    forwardAnimationCurve: Curves.fastLinearToSlowEaseIn,
+    forwardAnimationCurve: Curves.easeOutQuad,
     title: 'Wrong information entered:',
     message: message,
   )..show(context);
