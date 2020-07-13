@@ -7,12 +7,94 @@ class HomePage extends StatelessWidget {
 
   final BaseAuth auth;
   final VoidCallback onSignOut;
-
   final tab = new TabBar(tabs: <Tab>[
-    new Tab(icon: new Icon(Icons.arrow_forward)),
-    new Tab(icon: new Icon(Icons.arrow_downward)),
-    new Tab(icon: new Icon(Icons.arrow_back)),
+    new Tab(
+      icon: new Icon(Icons.event),
+      text: "Events",
+    ),
+    new Tab(
+      icon: new Icon(Icons.group),
+      text: "Groups",
+    ),
+    new Tab(
+      icon: new Icon(Icons.account_circle),
+      text: "Friends",
+    ),
   ]);
+  final pages = new SizedBox(
+    height: 300,
+    child: Column(
+      children: <Widget>[
+        Expanded(
+          child: TabBarView(children: <Widget>[
+            Container(
+              child: ListView(
+                shrinkWrap: true,
+                children: <Widget>[
+                  ListTile(
+                    title: Text('Event1'),
+                    onTap: () {
+                      // Update the state of the app.
+                      // ...
+                    },
+                  ),
+                  ListTile(
+                    title: Text('Event2'),
+                    onTap: () {
+                      // Update the state of the app.
+                      // ...
+                    },
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              child: ListView(
+                shrinkWrap: true,
+                children: <Widget>[
+                  ListTile(
+                    title: Text('Brotherhood'),
+                    onTap: () {
+                      // Update the state of the app.
+                      // ...
+                    },
+                  ),
+                  ListTile(
+                    title: Text('Nispahim'),
+                    onTap: () {
+                      // Update the state of the app.
+                      // ...
+                    },
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              child: ListView(
+                shrinkWrap: true,
+                children: <Widget>[
+                  ListTile(
+                    title: Text('Shlomi'),
+                    onTap: () {
+                      // Update the state of the app.
+                      // ...
+                    },
+                  ),
+                  ListTile(
+                    title: Text('Liad'),
+                    onTap: () {
+                      // Update the state of the app.
+                      // ...
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ]),
+        ),
+      ],
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -35,53 +117,15 @@ class HomePage extends StatelessWidget {
                   onPressed: _signOut,
                   child: new Text('Logout',
                       style:
-                      new TextStyle(fontSize: 17.0, color: Colors.white))),
+                          new TextStyle(fontSize: 17.0, color: Colors.white))),
             ],
             bottom: tab,
           ),
-          body: Column(children: <Widget>[
-            SizedBox(
-              height: 300,
-                child: Column(
-                  children: <Widget>[
-                    Expanded(
-                      child: TabBarView(
-                        children: <Widget>[
-                          Container(
-                              child: ListView(
-                                shrinkWrap: true,
-                                children: <Widget>[
-                                  ListTile(
-                                    title: Text('Event1'),
-                                    onTap: () {
-                                      // Update the state of the app.
-                                      // ...
-                                    },
-                                  ),
-                                  ListTile(
-                                    title: Text('Event2'),
-                                    onTap: () {
-                                      // Update the state of the app.
-                                      // ...
-                                    },
-                                  ),
-                                ],
-                              ),
-                          ),
-                          Container(
-                            height: 200.0,
-                            color: Colors.green,
-                          ),
-                          Container(
-                            height: 200.0,
-                            color: Colors.red,
-                          ),
-                        ]
-                      ),
-                    ),
-                  ],
-                ))
-          ]),
+          body: Column(
+            children: <Widget>[
+              pages,
+            ],
+          ),
           drawer: Drawer(
             child: ListView(
               // Important: Remove any padding from the ListView.
