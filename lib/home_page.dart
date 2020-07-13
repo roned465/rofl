@@ -1,3 +1,4 @@
+import 'package:fab_circular_menu/fab_circular_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:rofl/add_friends_groups.dart';
 import 'auth.dart';
@@ -73,6 +74,8 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
                       colors: <Color>[Colors.yellow[100], Colors.yellow[100]])),
             ),
             bottom: new TabBar(
+              indicatorColor: Colors.deepOrange,
+              labelColor: Colors.deepOrange,
               tabs: myTabs,
               controller: _tabController,
             ),
@@ -171,20 +174,25 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
               // Important: Remove any padding from the ListView.
               padding: EdgeInsets.zero,
               children: <Widget>[
-                DrawerHeader(
+
+                Container(
+                  height: 75.0,
+                  child :DrawerHeader(
                   child: Text(
                     'Settings',
                     style: new TextStyle(color: Colors.yellow[100]),
                   ),
                   decoration: BoxDecoration(
+
                     color: Colors.deepOrange,
                   ),
+                ),
                 ),
                 ListTile(
                   title: Text('add event'),
                   onTap: () {
-                    Navigator.push(
-                        context, MaterialPageRoute(builder: (context) => CreateEvent()));
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => CreateEvent()));
                   },
                 ),
                 ListTile(
@@ -203,36 +211,36 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
               ],
             ),
           ),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              tabIndex = _tabController.index;
-              print(tabIndex);
-              switch(tabIndex){
-                case 0: {
-                  Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => CreateEvent()));
-                  break;
-                }
-                case 1: {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => AddFriends()));
-                  break;
-                }
-                case 2: {
+          floatingActionButton: FabCircularMenu(
+            fabOpenIcon: Icon(Icons.add, color: Colors.yellow[100], size: 30.0),
+              fabCloseIcon: Icon(Icons.close, color: Colors.deepOrange),
+              ringColor: Colors.deepOrange,
+              ringDiameter: 300.0,
+              ringWidth: 100.0,
+              fabSize: 64.0,
+              fabOpenColor: Colors.yellow[100],
+              fabCloseColor: Colors.deepOrange,
+              fabElevation: 8.0,
+              animationCurve: Curves.elasticIn,
+              children: <Widget>[
+                IconButton(icon: Icon(Icons.group_add, color: Colors.yellow[100], size: 30.0), onPressed: () {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => AddFriends()));
-                  break;
-                }
-              }
+                }),
+                IconButton(icon: Icon(Icons.person_add, color: Colors.yellow[100], size: 30.0), onPressed: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => AddFriends()));
+                }),
+                IconButton(icon: Icon(Icons.add_box, color: Colors.yellow[100], size: 30.0), onPressed: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => CreateEvent()));
+                })
+              ]
 
-            },
-            child: Icon(
-              Icons.add,
-              color: Colors.deepOrange,
-            ),
-            backgroundColor: Colors.yellow[100],
           ),
+
         ),
-      ),);
+      ),
+    );
   }
 }
