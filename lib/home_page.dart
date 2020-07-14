@@ -6,7 +6,7 @@ import 'auth.dart';
 import 'add_friends_groups.dart';
 import 'package:rofl/add_event.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:bubble/bubble.dart';
 class HomePage extends StatefulWidget {
   HomePage({this.auth, this.onSignOut, Key key}) : super(key: key);
   final BaseAuth auth;
@@ -43,12 +43,9 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
     return ListTile(
       title: Column(
         children: <Widget>[
-          Container(
-            child: Text("name = " + document['name'] + "| location= " + document['location'] + "| time " + document['time'],),
-            decoration: const BoxDecoration(
-              color: Colors.deepOrange,
-            ),
-            padding: const EdgeInsets.all(10.0),
+          Bubble(
+            color: Colors.deepOrange,
+            child: Text("name = " + document['name'] + "| location= " + document['location'] + "| time " + document['time'], textAlign: TextAlign.center, style: TextStyle(fontSize: 11.0)),
           )
         ],
       ),
