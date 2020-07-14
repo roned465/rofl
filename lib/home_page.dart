@@ -65,6 +65,14 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
         length: 3,
         child: Scaffold(
           appBar: new AppBar(
+            centerTitle: true,
+            title: new Text(
+              "Home Page",
+              style: TextStyle(
+                color: Colors.deepOrange,
+              ),
+            ),
+            backgroundColor: Colors.deepOrange,
             iconTheme: new IconThemeData(color: Colors.deepOrange),
             flexibleSpace: Container(
               decoration: BoxDecoration(
@@ -80,11 +88,10 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
               controller: _tabController,
             ),
             actions: <Widget>[
-              new FlatButton(
-                onPressed: _signOut,
-                child: new Text('Logout',
-                    style: new TextStyle(
-                        fontSize: 17.0, color: Colors.deepOrange)),
+              new Icon(
+                Icons.home,
+                color: Colors.deepOrange,
+                size: 35,
               ),
             ],
           ),
@@ -174,45 +181,36 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
               // Important: Remove any padding from the ListView.
               padding: EdgeInsets.zero,
               children: <Widget>[
-
                 Container(
                   height: 75.0,
-                  child :DrawerHeader(
-                  child: Text(
-                    'Settings',
-                    style: new TextStyle(color: Colors.yellow[100]),
+                  child: DrawerHeader(
+                    child: Text(
+                      'Settings',
+                      style: new TextStyle(color: Colors.yellow[100]),
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.deepOrange,
+                    ),
                   ),
-                  decoration: BoxDecoration(
-
-                    color: Colors.deepOrange,
-                  ),
-                ),
                 ),
                 ListTile(
-                  title: Text('add event'),
-                  onTap: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => CreateEvent()));
-                  },
+                  title: Text('Logout'),
+                  onTap: _signOut,
                 ),
                 ListTile(
-                  title: Text('DAB'),
-                  onTap: () {
-                    // Update the state of the app.
-                    // ...
-                  },
-                ),
-                ListTile(
-                  title: Text('exit'),
+                  title: Text('close'),
                   onTap: () {
                     Navigator.pop(context);
+                    Navigator.push(
+                        context, MaterialPageRoute(builder: (_) => HomePage()));
                   },
                 ),
               ],
             ),
           ),
           floatingActionButton: FabCircularMenu(
-            fabOpenIcon: Icon(Icons.add, color: Colors.yellow[100], size: 30.0),
+              fabOpenIcon:
+                  Icon(Icons.add, color: Colors.yellow[100], size: 30.0),
               fabCloseIcon: Icon(Icons.close, color: Colors.deepOrange),
               ringColor: Colors.deepOrange,
               ringDiameter: 300.0,
@@ -223,22 +221,34 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
               fabElevation: 8.0,
               animationCurve: Curves.elasticIn,
               children: <Widget>[
-                IconButton(icon: Icon(Icons.group_add, color: Colors.yellow[100], size: 30.0), onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => AddFriends()));
-                }),
-                IconButton(icon: Icon(Icons.person_add, color: Colors.yellow[100], size: 30.0), onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => AddFriends()));
-                }),
-                IconButton(icon: Icon(Icons.add_box, color: Colors.yellow[100], size: 30.0), onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => CreateEvent()));
-                })
-              ]
-
-          ),
-
+                IconButton(
+                    icon: Icon(Icons.group_add,
+                        color: Colors.yellow[100], size: 30.0),
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => AddFriends()));
+                    }),
+                IconButton(
+                    icon: Icon(Icons.person_add,
+                        color: Colors.yellow[100], size: 30.0),
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => AddFriends()));
+                    }),
+                IconButton(
+                    icon: Icon(Icons.add_box,
+                        color: Colors.yellow[100], size: 30.0),
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => CreateEvent()));
+                    })
+              ]),
         ),
       ),
     );
