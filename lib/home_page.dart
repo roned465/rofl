@@ -17,7 +17,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
   _HomePage(this.auth, this.onSignOut);
-
+  final GlobalKey<FabCircularMenuState> fabKey = GlobalKey();
   final BaseAuth auth;
   final VoidCallback onSignOut;
   TabController _tabController;
@@ -223,6 +223,7 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
             ),
           ),
           floatingActionButton: FabCircularMenu(
+              key: fabKey,
               fabOpenIcon:
                   Icon(Icons.add, color: Colors.yellow[100], size: 30.0),
               fabCloseIcon: Icon(Icons.close, color: Colors.deepOrange),
@@ -240,6 +241,7 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
                     icon: Icon(Icons.group_add,
                         color: Colors.yellow[100], size: 30.0),
                     onPressed: () {
+                      fabKey.currentState.close();
                       Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -249,6 +251,7 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
                     icon: Icon(Icons.person_add,
                         color: Colors.yellow[100], size: 30.0),
                     onPressed: () {
+                      fabKey.currentState.close();
                       Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -258,6 +261,7 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
                     icon: Icon(Icons.add_box,
                         color: Colors.yellow[100], size: 30.0),
                     onPressed: () {
+                      fabKey.currentState.close();
                       Navigator.push(
                           context,
                           MaterialPageRoute(

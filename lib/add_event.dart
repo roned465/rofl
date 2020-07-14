@@ -5,6 +5,7 @@ import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:rofl/create_event.dart';
 import 'primary_button.dart';
 import 'auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
@@ -56,6 +57,7 @@ void showFloatingFlushbar(BuildContext context, var message) {
 
 class _CreateEventState extends State<CreateEvent> {
   static final formKey = new GlobalKey<FormState>();
+  final firestoreInstance = Firestore.instance;
 
   String _name = "";
   String _Location = "";
@@ -77,7 +79,7 @@ class _CreateEventState extends State<CreateEvent> {
   void validateAndSubmit(BuildContext context) async {
     var errorMessage = "";
     String userId = "";
-    
+
     if (validateAndSave()) {
       try {
         if(_name == "" || _Location == "" || _date == "" || _time == "")
@@ -88,35 +90,11 @@ class _CreateEventState extends State<CreateEvent> {
           {
 
             Navigator.push(
-                context, MaterialPageRoute(builder: (context) => Invite()));
+                context, MaterialPageRoute(builder: (context) => Invite(name: _name, date: _date, location: _Location, time: _time,)));
           }
 
       } catch (e) {
         switch (e.code) {
-          case "ERROR_INVALID_EMAIL":
-            errorMessage = "Your email address appears to be malformed.";
-            break;
-          case "ERROR_WRONG_PASSWORD":
-            errorMessage = "Bad Email or Password";
-            break;
-          case "ERROR_USER_NOT_FOUND":
-            errorMessage = "Bad Email or Password";
-            break;
-          case "ERROR_USER_DISABLED":
-            errorMessage = "User with this email has been disabled.";
-            break;
-          case "ERROR_TOO_MANY_REQUESTS":
-            errorMessage = "Too many requests. Try again later.";
-            break;
-          case "ERROR_OPERATION_NOT_ALLOWED":
-            errorMessage = "Signing in with Email and Password is not enabled.";
-            break;
-          case "ERROR_OPERATION_NOT_ALLOWED":
-            errorMessage = "Signing in with Email and Password is not enabled.";
-            break;
-          case "ERROR_NOT_MATCHING_PASSWORDS":
-            errorMessage = "Passwords don't match.";
-            break;
           case "ERROR_EMPTY_FIELD":
             errorMessage = "Can't leave empty fields";
             break;
@@ -415,7 +393,7 @@ class _CreateEventState extends State<CreateEvent> {
                                       crossAxisAlignment:
                                       CrossAxisAlignment.stretch,
                                       children: usernameAndPassword() +
-                                          submitWidgets(context),
+                                          submitWidgets(context) ,
                                     ))),
                           ])),
                 ]))));

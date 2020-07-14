@@ -4,16 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'primary_button.dart';
 import 'auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
 
 class Invite extends StatefulWidget {
-  Invite({Key key, this.title, this.auth, this.onSignIn}) : super(key: key);
+  Invite({Key key, this.name, this.time, this.date, this.location }) : super(key: key);
 
-  final String title;
-  final BaseAuth auth;
-  final VoidCallback onSignIn;
+  final String name;
+  final String time;
+  final String date;
+  final String location;
 
   @override
   _Invite createState() => new _Invite();
@@ -26,11 +28,15 @@ class PasswordsException implements Exception {
 }
 
 class _Invite extends State<Invite> {
+
+  final firestoreInstance = Firestore.instance;
   static final formKey = new GlobalKey<FormState>();
   List<String> _listgroups = ['bhood', 'dabs', 'rofls'];
   List<bool> _groupschecked = List.filled(3, false);
   List<String> _listfriends = ['shlomi', 'yojev'];
   List<bool> _friendschecked  = List.filled(3, false);
+  List<String> invited_groups = [];
+  List<String> invited_friends = [];
   bool _isChecked = false;
 
 
@@ -49,10 +55,30 @@ class _Invite extends State<Invite> {
         ),
       ]);
 
-  String _name;
-  String _Location;
-  String _date = "";
-  String _time = "";
+  void showFloatingFlushbar(BuildContext context, var message) {
+    Flushbar(
+      duration: new Duration(seconds: 4),
+      borderRadius: 8,
+      backgroundGradient: LinearGradient(
+        colors: [Colors.deepOrange.shade300, Colors.yellow.shade300],
+        stops: [0.6, 1],
+      ),
+      boxShadows: [
+        BoxShadow(
+          color: Colors.black45,
+          offset: Offset(3, 3),
+          blurRadius: 3,
+        ),
+      ],
+      // All of the previous Flushbars could be dismissed by swiping down
+      // now we want to swipe to the sides
+      dismissDirection: FlushbarDismissDirection.VERTICAL,
+      // The default curve is Curves.easeOut
+      forwardAnimationCurve: Curves.easeOutQuad,
+
+      message: message,
+    )..show(context);
+  }
 
   FormType _formType = FormType.login;
 
@@ -120,6 +146,42 @@ class _Invite extends State<Invite> {
                     .toList(),
               ),
             ],
+          ),
+          floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+          floatingActionButton: FloatingActionButton(
+            backgroundColor: Colors.deepOrangeAccent,
+            child: Icon(Icons.add_circle, color: Colors.yellow[100]),
+            onPressed: () {
+
+              for (int i = 0; i < _friendschecked.length; i++) {
+                if (_friendschecked[i]) {
+                  invited_friends.add(_listfriends[i]);
+                }
+              }
+              for (int i = 0; i < _groupschecked.length; i++) {
+                if (_groupschecked[i]) {
+                  invited_groups.add(_listgroups[i]);
+                }
+              }
+              if (invited_friends.length == 0 && invited_groups.length == 0) {
+                showFloatingFlushbar(context, "You have to invite someone");
+              }
+              else {
+                firestoreInstance.collection("Events").add(
+                    {
+                      "groups": invited_groups,
+                      "friends": invited_friends,
+                      "name": widget.name,
+                      "location": widget.location,
+                      "date": widget.date,
+                      "time": widget.time,
+                    }).then((value) {
+                  print(value.documentID);
+                  int count = 0;
+                  Navigator.of(context).popUntil((_) => count++ >= 2);
+                });
+              }
+            },
           ),
         ),
       ),

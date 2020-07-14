@@ -24,7 +24,7 @@ dev_dependencies:
     sdk: flutter
   firebase_auth: 0.16.1
   rflutter_alert: ^1.0.2
-  cloud_firestore:
+  cloud_firestore:  ^0.13.4+2
 
   # new
 
