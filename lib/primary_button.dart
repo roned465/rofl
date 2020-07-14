@@ -17,7 +17,7 @@ class PrimaryButton extends StatelessWidget {
           shape: new RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(height / 2))),
           color: Colors.deepOrangeAccent,
-          textColor: Colors.black87,
+          textColor: Colors.deepOrangeAccent,
           onPressed: onPressed),
     );
   }
