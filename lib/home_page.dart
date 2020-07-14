@@ -4,6 +4,7 @@ import 'package:rofl/add_friends_groups.dart';
 import 'auth.dart';
 import 'add_friends_groups.dart';
 import 'package:rofl/add_event.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({this.auth, this.onSignOut, Key key}) : super(key: key);
@@ -36,6 +37,11 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
       text: "Friends",
     ),
   ];
+  
+
+
+
+
 
   @override
   void initState() {
@@ -97,83 +103,90 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
           ),
           body: Column(
             children: <Widget>[
-              new SizedBox(
-                height: 300,
-                child: Column(
-                  children: <Widget>[
-                    Expanded(
-                      child: TabBarView(
-                        controller: _tabController,
+              StreamBuilder(
+                  stream: Firestore.instance.collection("Events").snapshots(),
+                  builder: (BuildContext context, snapshot) {
+                    if (!snapshot.hasData) return const Text("Loading...");
+                    return new SizedBox(
+                      height: 300,
+                      child: Column(
                         children: <Widget>[
-                          Container(
-                            child: ListView(
-                              shrinkWrap: true,
+                          Expanded(
+                            child: TabBarView(
+                              controller: _tabController,
                               children: <Widget>[
-                                ListTile(
-                                  title: Text('Event1'),
-                                  onTap: () {
-                                    // Update the state of the app.
-                                    // ...
-                                  },
+                                Container(
+                                  child: ListView(
+                                    shrinkWrap: true,
+                                    children: <Widget>[
+                                      ListTile(
+                                        title: Text(
+                                          snapshot.data.documents[0]["name"].toString(),
+                                        ),
+                                        onTap: () {
+                                          // Update the state of the app.
+                                          // ...
+                                        },
+                                      ),
+                                      ListTile(
+                                        title: Text('Event2'),
+                                        onTap: () {
+                                          // Update the state of the app.
+                                          // ...
+                                        },
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                                ListTile(
-                                  title: Text('Event2'),
-                                  onTap: () {
-                                    // Update the state of the app.
-                                    // ...
-                                  },
+                                Container(
+                                  child: ListView(
+                                    shrinkWrap: true,
+                                    children: <Widget>[
+                                      ListTile(
+                                        title: Text('Brotherhood'),
+                                        onTap: () {
+                                          // Update the state of the app.
+                                          // ...
+                                        },
+                                      ),
+                                      ListTile(
+                                        title: Text('Nispahim'),
+                                        onTap: () {
+                                          // Update the state of the app.
+                                          // ...
+                                        },
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            child: ListView(
-                              shrinkWrap: true,
-                              children: <Widget>[
-                                ListTile(
-                                  title: Text('Brotherhood'),
-                                  onTap: () {
-                                    // Update the state of the app.
-                                    // ...
-                                  },
-                                ),
-                                ListTile(
-                                  title: Text('Nispahim'),
-                                  onTap: () {
-                                    // Update the state of the app.
-                                    // ...
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            child: ListView(
-                              shrinkWrap: true,
-                              children: <Widget>[
-                                ListTile(
-                                  title: Text('Shlomi'),
-                                  onTap: () {
-                                    // Update the state of the app.
-                                    // ...
-                                  },
-                                ),
-                                ListTile(
-                                  title: Text('Liad'),
-                                  onTap: () {
-                                    // Update the state of the app.
-                                    // ...
-                                  },
+                                Container(
+                                  child: ListView(
+                                    shrinkWrap: true,
+                                    children: <Widget>[
+                                      ListTile(
+                                        title: Text('Shlomi'),
+                                        onTap: () {
+                                          // Update the state of the app.
+                                          // ...
+                                        },
+                                      ),
+                                      ListTile(
+                                        title: Text('Liad'),
+                                        onTap: () {
+                                          // Update the state of the app.
+                                          // ...
+                                        },
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
                           ),
                         ],
                       ),
-                    ),
-                  ],
-                ),
-              ),
+                    );
+                  }),
             ],
           ),
           drawer: Drawer(
