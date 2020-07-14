@@ -1,4 +1,5 @@
 import 'package:fab_circular_menu/fab_circular_menu.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rofl/add_friends_groups.dart';
 import 'auth.dart';
@@ -37,11 +38,22 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
       text: "Friends",
     ),
   ];
-  
 
-
-
-
+  Widget _buildListItem(BuildContext context, DocumentSnapshot document) {
+    return ListTile(
+      title: Column(
+        children: <Widget>[
+          Container(
+            child: Text("name = " + document['name'] + "| location= " + document['location'] + "| time " + document['time'],),
+            decoration: const BoxDecoration(
+              color: Colors.deepOrange,
+            ),
+            padding: const EdgeInsets.all(10.0),
+          )
+        ],
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -101,94 +113,57 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
               ),
             ],
           ),
-          body: Column(
-            children: <Widget>[
-              StreamBuilder(
-                  stream: Firestore.instance.collection("Events").snapshots(),
-                  builder: (BuildContext context, snapshot) {
-                    if (!snapshot.hasData) return const Text("Loading...");
-                    return new SizedBox(
-                      height: 300,
-                      child: Column(
-                        children: <Widget>[
-                          Expanded(
-                            child: TabBarView(
-                              controller: _tabController,
-                              children: <Widget>[
-                                Container(
-                                  child: ListView(
-                                    shrinkWrap: true,
-                                    children: <Widget>[
-                                      ListTile(
-                                        title: Text(
-                                          snapshot.data.documents[0]["name"].toString(),
-                                        ),
-                                        onTap: () {
-                                          // Update the state of the app.
-                                          // ...
-                                        },
-                                      ),
-                                      ListTile(
-                                        title: Text('Event2'),
-                                        onTap: () {
-                                          // Update the state of the app.
-                                          // ...
-                                        },
-                                      ),
-                                    ],
-                                  ),
+          body: Column(children: <Widget>[
+            StreamBuilder(
+              stream: Firestore.instance.collection("Events").snapshots(),
+              builder: (BuildContext context, snapshot) {
+                if (!snapshot.hasData) return const Text("Loading...");
+                return new SizedBox(
+                    height: 500,
+                    child: Column(
+                      children: <Widget>[
+                        Expanded(
+                          child: TabBarView(
+                            controller: _tabController,
+                            children: <Widget>[
+                              Container(
+                                child: ListView.builder(
+                                  itemExtent: 80.0,
+                                  itemCount: snapshot.data.documents.length,
+                                  itemBuilder: (context, index) =>
+                                      _buildListItem(context,
+                                            snapshot.data.documents[index]),
+                                  shrinkWrap: true,
                                 ),
-                                Container(
-                                  child: ListView(
-                                    shrinkWrap: true,
-                                    children: <Widget>[
-                                      ListTile(
-                                        title: Text('Brotherhood'),
-                                        onTap: () {
-                                          // Update the state of the app.
-                                          // ...
-                                        },
-                                      ),
-                                      ListTile(
-                                        title: Text('Nispahim'),
-                                        onTap: () {
-                                          // Update the state of the app.
-                                          // ...
-                                        },
-                                      ),
-                                    ],
-                                  ),
+                              ),
+                              Container(
+                                child: ListView.builder(
+                                  itemExtent: 80.0,
+                                  itemCount: snapshot.data.documents.length,
+                                  itemBuilder: (context, index) =>
+                                      _buildListItem(context,
+                                          snapshot.data.documents[index]),
+                                  shrinkWrap: true,
                                 ),
-                                Container(
-                                  child: ListView(
-                                    shrinkWrap: true,
-                                    children: <Widget>[
-                                      ListTile(
-                                        title: Text('Shlomi'),
-                                        onTap: () {
-                                          // Update the state of the app.
-                                          // ...
-                                        },
-                                      ),
-                                      ListTile(
-                                        title: Text('Liad'),
-                                        onTap: () {
-                                          // Update the state of the app.
-                                          // ...
-                                        },
-                                      ),
-                                    ],
-                                  ),
+                              ),
+                              Container(
+                                child: ListView.builder(
+                                  itemExtent: 80.0,
+                                  itemCount: snapshot.data.documents.length,
+                                  itemBuilder: (context, index) =>
+                                      _buildListItem(context,
+                                          snapshot.data.documents[index]),
+                                  shrinkWrap: true,
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    );
-                  }),
-            ],
-          ),
+                        )
+                      ],
+                    ));
+              },
+            )
+          ]),
           drawer: Drawer(
             child: ListView(
               // Important: Remove any padding from the ListView.
