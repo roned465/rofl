@@ -77,6 +77,7 @@ class _CreateEventState extends State<CreateEvent> {
   void validateAndSubmit(BuildContext context) async {
     var errorMessage = "";
     String userId = "";
+    
     if (validateAndSave()) {
       try {
         if(_name == "" || _Location == "" || _date == "" || _time == "")
@@ -85,6 +86,7 @@ class _CreateEventState extends State<CreateEvent> {
         }
         else
           {
+
             Navigator.push(
                 context, MaterialPageRoute(builder: (context) => Invite()));
           }

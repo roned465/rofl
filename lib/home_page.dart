@@ -83,6 +83,7 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
         length: 3,
         child: Scaffold(
           appBar: new AppBar(
+
             centerTitle: true,
             title: new Text(
               "Home Page",
@@ -100,16 +101,16 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
                       colors: <Color>[Colors.yellow[100], Colors.yellow[100]])),
             ),
             bottom: new TabBar(
-              indicatorColor: Colors.deepOrange,
+              indicatorColor: Colors.deepOrangeAccent,
               labelColor: Colors.deepOrange,
               tabs: myTabs,
               controller: _tabController,
             ),
             actions: <Widget>[
-              new Icon(
-                Icons.home,
+              new IconButton(
+                icon: new Image.asset('assets/option2.png'),
                 color: Colors.deepOrange,
-                size: 35,
+
               ),
             ],
           ),
@@ -200,6 +201,7 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
               fabOpenIcon:
                   Icon(Icons.add, color: Colors.yellow[100], size: 30.0),
               fabCloseIcon: Icon(Icons.close, color: Colors.deepOrange),
+              animationDuration: Duration(seconds: 1),
               ringColor: Colors.deepOrange,
               ringDiameter: 300.0,
               ringWidth: 100.0,
