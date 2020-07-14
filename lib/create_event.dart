@@ -8,9 +8,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
-
 class Invite extends StatefulWidget {
-  Invite({Key key, this.name, this.time, this.date, this.location }) : super(key: key);
+  Invite({Key key, this.name, this.time, this.date, this.location})
+      : super(key: key);
 
   final String name;
   final String time;
@@ -28,18 +28,15 @@ class PasswordsException implements Exception {
 }
 
 class _Invite extends State<Invite> {
-
   final firestoreInstance = Firestore.instance;
   static final formKey = new GlobalKey<FormState>();
   List<String> _listgroups = ['bhood', 'dabs', 'rofls'];
   List<bool> _groupschecked = List.filled(3, false);
   List<String> _listfriends = ['shlomi', 'yojev'];
-  List<bool> _friendschecked  = List.filled(3, false);
+  List<bool> _friendschecked = List.filled(3, false);
   List<String> invited_groups = [];
   List<String> invited_friends = [];
   bool _isChecked = false;
-
-
 
   final tab = new TabBar(
       labelColor: Colors.deepOrange,
@@ -80,11 +77,8 @@ class _Invite extends State<Invite> {
     )..show(context);
   }
 
-  FormType _formType = FormType.login;
-
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp(
       home: DefaultTabController(
         length: 2,
@@ -147,12 +141,12 @@ class _Invite extends State<Invite> {
               ),
             ],
           ),
-          floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerFloat,
           floatingActionButton: FloatingActionButton(
             backgroundColor: Colors.deepOrangeAccent,
             child: Icon(Icons.add_circle, color: Colors.yellow[100]),
             onPressed: () {
-
               for (int i = 0; i < _friendschecked.length; i++) {
                 if (_friendschecked[i]) {
                   invited_friends.add(_listfriends[i]);
@@ -165,17 +159,15 @@ class _Invite extends State<Invite> {
               }
               if (invited_friends.length == 0 && invited_groups.length == 0) {
                 showFloatingFlushbar(context, "You have to invite someone");
-              }
-              else {
-                firestoreInstance.collection("Events").add(
-                    {
-                      "groups": invited_groups,
-                      "friends": invited_friends,
-                      "name": widget.name,
-                      "location": widget.location,
-                      "date": widget.date,
-                      "time": widget.time,
-                    }).then((value) {
+              } else {
+                firestoreInstance.collection("Events").add({
+                  "groups": invited_groups,
+                  "friends": invited_friends,
+                  "name": widget.name,
+                  "location": widget.location,
+                  "date": widget.date,
+                  "time": widget.time,
+                }).then((value) {
                   print(value.documentID);
                   int count = 0;
                   Navigator.of(context).popUntil((_) => count++ >= 2);

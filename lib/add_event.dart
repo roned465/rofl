@@ -10,7 +10,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
 class CreateEvent extends StatefulWidget {
-  CreateEvent({Key key, this.title, this.auth, this.onSignIn}) : super(key: key);
+  CreateEvent({Key key, this.title, this.auth, this.onSignIn})
+      : super(key: key);
 
   final String title;
   final BaseAuth auth;
@@ -18,12 +19,6 @@ class CreateEvent extends StatefulWidget {
 
   @override
   _CreateEventState createState() => new _CreateEventState();
-}
-
-enum FormType { login, register }
-
-class PasswordsException implements Exception {
-  String code = "ERROR_NOT_MATCHING_PASSWORDS";
 }
 
 class FieldException implements Exception {
@@ -82,17 +77,19 @@ class _CreateEventState extends State<CreateEvent> {
 
     if (validateAndSave()) {
       try {
-        if(_name == "" || _Location == "" || _date == "" || _time == "")
-        {
+        if (_name == "" || _Location == "" || _date == "" || _time == "") {
           throw FieldException();
+        } else {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => Invite(
+                        name: _name,
+                        date: _date,
+                        location: _Location,
+                        time: _time,
+                      )));
         }
-        else
-          {
-
-            Navigator.push(
-                context, MaterialPageRoute(builder: (context) => Invite(name: _name, date: _date, location: _Location, time: _time,)));
-          }
-
       } catch (e) {
         switch (e.code) {
           case "ERROR_EMPTY_FIELD":
@@ -113,22 +110,6 @@ class _CreateEventState extends State<CreateEvent> {
         _authHint = '';
       });
     }
-  }
-
-  void moveToRegister() {
-    formKey.currentState.reset();
-    setState(() {
-      _formType = FormType.register;
-      _authHint = '';
-    });
-  }
-
-  void moveToLogin() {
-    formKey.currentState.reset();
-    setState(() {
-      _formType = FormType.login;
-      _authHint = '';
-    });
   }
 
   List<Widget> usernameAndPassword() {
@@ -190,11 +171,14 @@ class _CreateEventState extends State<CreateEvent> {
                         ),
                         showTitleActions: true,
                         minTime: DateTime.now(),
-                        maxTime: DateTime(DateTime.now().year + 100, DateTime.now().month, DateTime.now().day), onConfirm: (date)  {
-                          print('confirm $date');
-                          _date = '${date.year} - ${date.month} - ${date.day}';
-                          setState(() {});
-                        }, currentTime: DateTime.now(), locale: LocaleType.en);
+                        maxTime: DateTime(
+                            DateTime.now().year + 100,
+                            DateTime.now().month,
+                            DateTime.now().day), onConfirm: (date) {
+                      print('confirm $date');
+                      _date = '${date.year} - ${date.month} - ${date.day}';
+                      setState(() {});
+                    }, currentTime: DateTime.now(), locale: LocaleType.en);
                   },
                   child: Container(
                     alignment: Alignment.center,
@@ -249,17 +233,15 @@ class _CreateEventState extends State<CreateEvent> {
                           containerHeight: 210.0,
                         ),
                         showTitleActions: true,
-                        showSecondsColumn: false,
-                        onConfirm: (time) {
-                          print('confirm $time');
-                          if(time.minute > 9) {
-                            _time = '${time.hour} : ${time.minute}';
-                          }
-                          else{
-                            _time = '${time.hour} : 0${time.minute}';
-                          }
-                          setState(() {});
-                        }, currentTime: DateTime.now(), locale: LocaleType.en);
+                        showSecondsColumn: false, onConfirm: (time) {
+                      print('confirm $time');
+                      if (time.minute > 9) {
+                        _time = '${time.hour} : ${time.minute}';
+                      } else {
+                        _time = '${time.hour} : 0${time.minute}';
+                      }
+                      setState(() {});
+                    }, currentTime: DateTime.now(), locale: LocaleType.en);
                     setState(() {});
                   },
                   child: Container(
@@ -304,29 +286,26 @@ class _CreateEventState extends State<CreateEvent> {
                 )
               ],
             ),
-
           ),
         ),
       ),
-
     ];
   }
 
   List<Widget> submitWidgets(BuildContext context) {
-
-        return [
-          new PrimaryButton(
-            key: new Key('invite'),
-            text: 'INVITE OTHERS',
-            height: 44.0,
-            onPressed: () => validateAndSubmit(context),
-          ),
-        ];
-    }
+    return [
+      new PrimaryButton(
+        key: new Key('invite'),
+        text: 'INVITE OTHERS',
+        height: 44.0,
+        onPressed: () => validateAndSubmit(context),
+      ),
+    ];
+  }
 
   Widget hintText() {
     return new Container(
-      //height: 80.0,
+        //height: 80.0,
         padding: const EdgeInsets.all(32.0),
         child: new Text(_authHint,
             key: new Key('hint'),
@@ -337,7 +316,6 @@ class _CreateEventState extends State<CreateEvent> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-
         key: _scaffoldKey,
         appBar: AppBar(
           centerTitle: true,
@@ -366,36 +344,28 @@ class _CreateEventState extends State<CreateEvent> {
         ),
         backgroundColor: Colors.yellow[100],
         body: new SingleChildScrollView(
-
             child: new Container(
                 padding: const EdgeInsets.all(16.0),
-
-
                 child: new Column(children: [
                   new Card(
                       child: new Column(
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
-                            new Container(
-                                padding: const EdgeInsets.all(16.0),
-                                decoration:
-                                BoxDecoration(
-                                    border: Border.all(
-                                        color: Colors.red
-                                    ),
-                                    borderRadius: BorderRadius.all(
-                                        Radius.circular(5.0)
-                                    )
-                                ),
-                                child: new Form(
-                                    key: formKey,
-                                    child: new Column(
-                                      crossAxisAlignment:
+                        new Container(
+                            padding: const EdgeInsets.all(16.0),
+                            decoration: BoxDecoration(
+                                border: Border.all(color: Colors.red),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(5.0))),
+                            child: new Form(
+                                key: formKey,
+                                child: new Column(
+                                  crossAxisAlignment:
                                       CrossAxisAlignment.stretch,
-                                      children: usernameAndPassword() +
-                                          submitWidgets(context) ,
-                                    ))),
-                          ])),
+                                  children: usernameAndPassword() +
+                                      submitWidgets(context),
+                                ))),
+                      ])),
                 ]))));
   }
 

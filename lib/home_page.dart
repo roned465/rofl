@@ -7,6 +7,7 @@ import 'add_friends_groups.dart';
 import 'package:rofl/add_event.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:bubble/bubble.dart';
+
 class HomePage extends StatefulWidget {
   HomePage({this.auth, this.onSignOut, Key key}) : super(key: key);
   final BaseAuth auth;
@@ -18,6 +19,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
   _HomePage(this.auth, this.onSignOut);
+
   final GlobalKey<FabCircularMenuState> fabKey = GlobalKey();
   final BaseAuth auth;
   final VoidCallback onSignOut;
@@ -40,14 +42,14 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
   ];
 
   Widget _buildListItem(BuildContext context, DocumentSnapshot document) {
-    return ListTile(
-      title: Column(
-        children: <Widget>[
-          Bubble(
-            color: Colors.deepOrange,
-            child: Text("name = " + document['name'] + "| location= " + document['location'] + "| time " + document['time'], textAlign: TextAlign.center, style: TextStyle(fontSize: 11.0)),
-          )
-        ],
+    return Card(
+      color: Colors.deepOrange,
+      child: ListTile(
+        subtitle: Text(
+          "| location= " + document['location'] + "| time " + document['time'],
+        ),
+        title: Text("name = " + document['name'],
+            textAlign: TextAlign.left, style: TextStyle(fontSize: 20.0)),
       ),
     );
   }
@@ -80,7 +82,6 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
         length: 3,
         child: Scaffold(
           appBar: new AppBar(
-
             centerTitle: true,
             title: new Text(
               "Home Page",
@@ -107,7 +108,6 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
               new IconButton(
                 icon: new Image.asset('assets/option2.png'),
                 color: Colors.deepOrange,
-
               ),
             ],
           ),
@@ -125,12 +125,14 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
                             controller: _tabController,
                             children: <Widget>[
                               Container(
-                                child: ListView.builder(
-                                  itemExtent: 80.0,
+                                child: ListView.separated(
                                   itemCount: snapshot.data.documents.length,
                                   itemBuilder: (context, index) =>
                                       _buildListItem(context,
-                                            snapshot.data.documents[index]),
+                                          snapshot.data.documents[index]),
+                                  separatorBuilder: (context, index) {
+                                    return Divider();
+                                  },
                                   shrinkWrap: true,
                                 ),
                               ),
