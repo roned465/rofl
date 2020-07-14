@@ -7,6 +7,7 @@ import 'auth.dart';
 
 final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
+
 class Invite extends StatefulWidget {
   Invite({Key key, this.title, this.auth, this.onSignIn}) : super(key: key);
 
@@ -26,11 +27,13 @@ class PasswordsException implements Exception {
 
 class _Invite extends State<Invite> {
   static final formKey = new GlobalKey<FormState>();
-  List<String> _listgroups = ['Rofl', 'dab'];
-  List<bool> _groupschecked = List.filled(2, false);
-  List<String> _listfriends = ['liad', 'yojev'];
-  List<bool> _friendschecked = List.filled(2, false);
+  List<String> _listgroups = ['bhood', 'dabs', 'rofls'];
+  List<bool> _groupschecked = List.filled(3, false);
+  List<String> _listfriends = ['shlomi', 'yojev'];
+  List<bool> _friendschecked  = List.filled(3, false);
   bool _isChecked = false;
+
+
 
   final tab = new TabBar(
       labelColor: Colors.deepOrange,
@@ -53,42 +56,9 @@ class _Invite extends State<Invite> {
 
   FormType _formType = FormType.login;
 
-  List<Widget> submitWidgets(BuildContext context) {
-    switch (_formType) {
-      case FormType.login:
-        return [
-          new PrimaryButton(
-            key: new Key('login'),
-            text: 'Login',
-            height: 44.0,
-            // onPressed: () => validateAndSubmit(context),
-          ),
-          new FlatButton(
-            key: new Key('need-account'),
-            child: new Text("Need an account? Register"),
-            // onPressed: moveToRegister),
-          )
-        ];
-      case FormType.register:
-        return [
-          new PrimaryButton(
-            key: new Key('register'),
-            text: 'Create an account',
-            height: 44.0,
-            //onPressed: () => validateAndSubmit(context),
-          ),
-          new FlatButton(
-            key: new Key('need-login'),
-            child: new Text("Have an account? Login"),
-            //onPressed: moveToLogin),
-          )
-        ];
-    }
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
+
     return MaterialApp(
       home: DefaultTabController(
         length: 2,
