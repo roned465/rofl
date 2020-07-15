@@ -2,6 +2,7 @@ import 'package:fab_circular_menu/fab_circular_menu.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rofl/add_friends_groups.dart';
+import 'package:rofl/create_group.dart';
 import 'auth.dart';
 import 'add_friends_groups.dart';
 import 'package:rofl/add_event.dart';
@@ -295,7 +296,7 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => AddFriends()));
+                              builder: (context) => createGroup()));
                     }),
                 IconButton(
                     icon: Icon(Icons.person_add,
