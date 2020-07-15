@@ -8,7 +8,7 @@ import 'add_friends_groups.dart';
 import 'package:rofl/add_event.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'my_popup_menu.dart' as mypopup;
-
+import 'package:async/async.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({this.auth, this.onSignOut, this.uid, Key key}) : super(key: key);
@@ -23,6 +23,15 @@ class HomePage extends StatefulWidget {
 enum WhyFarther { attend, decline, maybe }
 
 class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
+  Stream<List<QuerySnapshot>> getData() {
+    Stream stream1 = Firestore.instance.collection('Events').snapshots();
+    Stream stream2 = Firestore.instance
+        .collection('userEvents')
+        .document(widget.uid)
+        .snapshots();
+    return StreamZip([stream1, stream2]);
+  }
+
   _HomePage(this.auth, this.onSignOut);
 
   final GlobalKey<FabCircularMenuState> fabKey = GlobalKey();
@@ -31,107 +40,155 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
   TabController _tabController;
   int tabIndex = 0;
 
-
   final List<Tab> myTabs = <Tab>[
     new Tab(
       icon: new Icon(Icons.event, color: Colors.deepOrange),
       text: "Events",
     ),
     new Tab(
-      icon: new Icon(Icons.group, color: Colors.deepOrange, ),
+      icon: new Icon(
+        Icons.group,
+        color: Colors.deepOrange,
+      ),
       text: "Groups",
     ),
     new Tab(
-      icon: new Icon(Icons.account_circle, color: Colors.deepOrange, ),
+      icon: new Icon(
+        Icons.account_circle,
+        color: Colors.deepOrange,
+      ),
       text: "Friends",
     ),
   ];
 
-  Widget _buildListItem(BuildContext context, DocumentSnapshot document) {
+  Future<Widget> _bids(String text) async {
+    await Firestore.instance
+        .collection('collection_name')
+        .where("document_id", isEqualTo: text)
+        .getDocuments()
+        .then((event) {
+      if (event.documents.isNotEmpty) {
+        Map<String, dynamic> documentData =
+            event.documents.single.data; //if it is a single document
+        return Text(documentData["name"]);
+      }
+      return Text("aids");
+    }).catchError((e) => print("error fetching data: $e"));
+  }
+
+  Widget _buildListItem(BuildContext context, DocumentSnapshot document, int index) {
     return Card(
       color: Colors.yellow[100],
-      child: ListTile(
-        trailing: mypopup.PopupMenuButton<WhyFarther>(
-          onSelected: (WhyFarther result) {
-            setState(() {
-              print(result);
-            });
-          },
-          itemBuilder: (BuildContext context) => [
-            mypopup.PopupMenuItem<WhyFarther>(
-              value: WhyFarther.attend,
-              child: Container(
-                height: double.infinity,
-                width: double.infinity,
-                color: Colors.lightGreen,
-                // i use this to change the bgColor color right now
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Icon(Icons.check),
-                    SizedBox(width: 10.0),
-                    Text("  Accept", textAlign: TextAlign.left,),
-                    SizedBox(width: 10.0),
-                  ],
-                ),
+      child:
+      StreamBuilder(
+          stream: Firestore.instance.document("Events/" + rofl[index])
+              .snapshots(),
+          builder: (context, AsyncSnapshot eventSnapshot) {
+            if (!eventSnapshot.hasData) return Text("loading...");
+            return new ListTile(
+              trailing: mypopup.PopupMenuButton<WhyFarther>(
+                onSelected: (WhyFarther result) {
+                  setState(() {
+                    print(result);
+                  });
+                },
+                itemBuilder: (BuildContext context) =>
+                [
+                  mypopup.PopupMenuItem<WhyFarther>(
+                    value: WhyFarther.attend,
+                    child: Container(
+                      height: double.infinity,
+                      width: double.infinity,
+                      color: Colors.lightGreen,
+                      // i use this to change the bgColor color right now
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Icon(Icons.check),
+                          SizedBox(width: 10.0),
+                          Text(
+                            "  Accept",
+                            textAlign: TextAlign.left,
+                          ),
+                          SizedBox(width: 10.0),
+                        ],
+                      ),
+                    ),
+                  ),
+                  mypopup.PopupMenuItem<WhyFarther>(
+                    value: WhyFarther.maybe,
+                    child: Container(
+                      height: double.infinity,
+                      width: double.infinity,
+                      color: Colors.yellow,
+                      // i use this to change the bgColor color right now
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Icon(Icons.access_alarm),
+                          SizedBox(width: 10.0),
+                          Text("  Maybe"),
+                          SizedBox(width: 10.0),
+                        ],
+                      ),
+                    ),
+                  ),
+                  mypopup.PopupMenuItem<WhyFarther>(
+                    value: WhyFarther.decline,
+                    child: Container(
+                      height: double.infinity,
+                      width: double.infinity,
+                      color: Colors.red,
+                      // i use this to change the bgColor color right now
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Icon(Icons.close),
+                          SizedBox(width: 10.0),
+                          Text(
+                            "  Decline",
+                            textAlign: TextAlign.left,
+                          ),
+                          SizedBox(width: 10.0),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-            mypopup.PopupMenuItem<WhyFarther>(
-              value: WhyFarther.maybe,
-              child: Container(
-                height: double.infinity,
-                width: double.infinity,
-                color: Colors.yellow,
-                // i use this to change the bgColor color right now
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Icon(Icons.access_alarm),
-                    SizedBox(width: 10.0),
-                    Text("  Maybe"),
-                    SizedBox(width: 10.0),
-                  ],
-                ),
+              leading: Text(
+                eventSnapshot.data['date'] + '\n' + eventSnapshot.data['time'],
+                textAlign: TextAlign.center,
               ),
-            ),
-            mypopup.PopupMenuItem<WhyFarther>(
-              value: WhyFarther.decline,
-              child: Container(
-
-                height: double.infinity,
-                width: double.infinity,
-                color: Colors.red,
-                // i use this to change the bgColor color right now
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Icon(Icons.close),
-                    SizedBox(width: 10.0),
-                    Text("  Decline", textAlign: TextAlign.left,),
-                    SizedBox(width: 10.0),
-                  ],
-                ),
+              subtitle: Text(
+                'Loctaion: ' + eventSnapshot.data['location'],
               ),
-            ),
-          ],
-        ),
-        leading: Text(
-          document['date'] + '\n' + document['time'],
-          textAlign: TextAlign.center,
-        ),
-        subtitle: Text(
-          'Loctaion: ' + document['location'],
-        ),
-        title: Text(document['name'],
-            textAlign: TextAlign.left, style: TextStyle(fontSize: 20.0)),
-      ),
+              title: eventSnapshot.data["name"],
+              //title: _bids("text"),
+            );
+          }
+     ),
     );
   }
 
+  List<String> rofl;
+
   @override
   void initState() {
-    super.initState();
-    _tabController = new TabController(vsync: this, length: myTabs.length);
+    Firestore.instance.collection("userEvents").document(widget.uid).get().then((DocumentSnapshot string) {
+      print("rofl" + widget.uid);
+      if (string.data.isNotEmpty) {
+        print("i love guys");
+        rofl = List.from(string.data['eventlist']);
+        print("lol");
+        print(rofl[0].toString());
+      } else {
+        print("No such user");
+      }
+
+      super.initState();
+      _tabController = new TabController(vsync: this, length: myTabs.length);
+    });
   }
 
   @override
@@ -157,7 +214,6 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
         length: 3,
         child: Scaffold(
           appBar: new AppBar(
-
             centerTitle: true,
             title: new Text(
               "Home Page",
@@ -187,59 +243,65 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
               ),
             ],
           ),
-          body: Column(children: <Widget>[
-            StreamBuilder(
-              stream: Firestore.instance.collection("Events").snapshots(),
-              builder: (BuildContext context, snapshot) {
-                if (!snapshot.hasData) return const Text("Loading...");
-                return new SizedBox(
-                    height: MediaQuery.of(context).size.height - 42 - MediaQuery.of(context).padding.bottom -AppBar().preferredSize.height - kToolbarHeight,
-                    child: Column(
-                      children: <Widget>[
-                        Expanded(
-                          child: TabBarView(
-                            controller: _tabController,
-                            children: <Widget>[
-                              Container(
-                                child: ListView.separated(
-                                  itemCount: snapshot.data.documents.length,
-                                  itemBuilder: (context, index) =>
-                                      _buildListItem(context,
-                                          snapshot.data.documents[index]),
-                                  separatorBuilder: (context, index) {
-                                    return Divider();
-                                  },
-                                  shrinkWrap: true,
-                                ),
+          body: Column(
+            children: <Widget>[
+              StreamBuilder(
+                  stream: Firestore.instance
+                      .collection("Events")
+                      .snapshots(),
+                  builder: (context, AsyncSnapshot eventSnapshot) {
+                    if (!eventSnapshot.hasData) return Text("loading...");
+                    return new SizedBox(
+                        height: MediaQuery.of(context).size.height -
+                            42 -
+                            MediaQuery.of(context).padding.bottom -
+                            AppBar().preferredSize.height -
+                            kToolbarHeight,
+                        child: Column(
+                          children: <Widget>[
+                            Expanded(
+                              child: TabBarView(
+                                controller: _tabController,
+                                children: <Widget>[
+                                  Container(
+                                    child: ListView.separated(
+                                      itemCount: rofl.length,
+                                      itemBuilder: (context, index) =>
+                                          _buildListItem(
+                                              context, eventSnapshot.data[index],index),
+                                      separatorBuilder: (context, index) {
+                                        return Divider();
+                                      },
+                                      shrinkWrap: true,
+                                    ),
+                                  ),
+                                  Container(
+                                    child: ListView.builder(
+                                      itemExtent: 80.0,
+                                      itemCount: rofl.length,
+                                      itemBuilder: (context, index) =>
+                                          _buildListItem(
+                                              context, eventSnapshot.data[index],index),                                      shrinkWrap: true,
+                                    ),
+                                  ),
+                                  Container(
+                                    child: ListView.builder(
+                                      itemExtent: 80.0,
+                                      itemCount: rofl.length,
+                                      itemBuilder: (context, index) =>
+                                          _buildListItem(
+                                              context, eventSnapshot.data[index],index),
+                                      shrinkWrap: true,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              Container(
-                                child: ListView.builder(
-                                  itemExtent: 80.0,
-                                  itemCount: snapshot.data.documents.length,
-                                  itemBuilder: (context, index) =>
-                                      _buildListItem(context,
-                                          snapshot.data.documents[index]),
-                                  shrinkWrap: true,
-                                ),
-                              ),
-                              Container(
-                                child: ListView.builder(
-                                  itemExtent: 80.0,
-                                  itemCount: snapshot.data.documents.length,
-                                  itemBuilder: (context, index) =>
-                                      _buildListItem(context,
-                                          snapshot.data.documents[index]),
-                                  shrinkWrap: true,
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      ],
-                    ));
-              },
-            )
-          ]),
+                            )
+                          ],
+                        ));
+                  }),
+            ],
+          ),
           drawer: Drawer(
             child: ListView(
               // Important: Remove any padding from the ListView.
@@ -272,11 +334,10 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
               ],
             ),
           ),
-
           floatingActionButton: new FabCircularMenu(
               key: fabKey,
               fabOpenIcon:
-              Icon(Icons.add, color: Colors.yellow[100], size: 30.0),
+                  Icon(Icons.add, color: Colors.yellow[100], size: 30.0),
               fabCloseIcon: Icon(Icons.close, color: Colors.deepOrange),
               animationDuration: Duration(seconds: 1),
               ringColor: Colors.deepOrange,
@@ -316,7 +377,8 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => CreateEvent(uid: widget.uid)));
+                              builder: (context) =>
+                                  CreateEvent(uid: widget.uid)));
                     })
               ]),
         ),
