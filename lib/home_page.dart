@@ -30,17 +30,18 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
   TabController _tabController;
   int tabIndex = 0;
 
+
   final List<Tab> myTabs = <Tab>[
     new Tab(
       icon: new Icon(Icons.event, color: Colors.deepOrange),
       text: "Events",
     ),
     new Tab(
-      icon: new Icon(Icons.group, color: Colors.deepOrange),
+      icon: new Icon(Icons.group, color: Colors.deepOrange, ),
       text: "Groups",
     ),
     new Tab(
-      icon: new Icon(Icons.account_circle, color: Colors.deepOrange),
+      icon: new Icon(Icons.account_circle, color: Colors.deepOrange, ),
       text: "Friends",
     ),
   ];
@@ -155,6 +156,7 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
         length: 3,
         child: Scaffold(
           appBar: new AppBar(
+
             centerTitle: true,
             title: new Text(
               "Home Page",
@@ -190,7 +192,7 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
               builder: (BuildContext context, snapshot) {
                 if (!snapshot.hasData) return const Text("Loading...");
                 return new SizedBox(
-                    height: 500,
+                    height: MediaQuery.of(context).size.height - 42 - MediaQuery.of(context).padding.bottom -AppBar().preferredSize.height - kToolbarHeight,
                     child: Column(
                       children: <Widget>[
                         Expanded(
@@ -269,10 +271,11 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
               ],
             ),
           ),
-          floatingActionButton: FabCircularMenu(
+
+          floatingActionButton: new FabCircularMenu(
               key: fabKey,
               fabOpenIcon:
-                  Icon(Icons.add, color: Colors.yellow[100], size: 30.0),
+              Icon(Icons.add, color: Colors.yellow[100], size: 30.0),
               fabCloseIcon: Icon(Icons.close, color: Colors.deepOrange),
               animationDuration: Duration(seconds: 1),
               ringColor: Colors.deepOrange,
