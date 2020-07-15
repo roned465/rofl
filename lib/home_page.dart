@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:fab_circular_menu/fab_circular_menu.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -46,6 +48,23 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
       text: "Friends",
     ),
   ];
+
+  Stream<List<DocumentSnapshot>> _userEventsStream = (() async* {
+//    var document = await Firestore.instance.collection('Events').getDocuments();//.document('9SCCqThRmfPIuOQfKYiw').get();
+
+
+    var userEventsDocument = await Firestore.instance.collection('userEvents').
+    document("X5OjtXMEG0R6CNTriDFLqmAe5R33").get();
+
+    var userEvents = List.from(userEventsDocument["eventlist"]);
+    List<DocumentSnapshot> eventsSnapshot = List();
+
+    for (var i = 0; i < userEvents.length; i++) {
+      eventsSnapshot.add(await userEvents[i].get());
+    }
+
+    yield eventsSnapshot;
+  })();
 
   Widget _buildListItem(BuildContext context, DocumentSnapshot document) {
     return Card(
@@ -189,8 +208,8 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
           ),
           body: Column(children: <Widget>[
             StreamBuilder(
-              stream: Firestore.instance.collection("Events").snapshots(),
-              builder: (BuildContext context, snapshot) {
+              stream: _userEventsStream,//Firestore.instance.collection("Events").snapshots(),
+              builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
                 if (!snapshot.hasData) return const Text("Loading...");
                 return new SizedBox(
                     height: MediaQuery.of(context).size.height - 42 - MediaQuery.of(context).padding.bottom -AppBar().preferredSize.height - kToolbarHeight,
@@ -202,10 +221,10 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
                             children: <Widget>[
                               Container(
                                 child: ListView.separated(
-                                  itemCount: snapshot.data.documents.length,
+                                  itemCount: snapshot.data.length,
                                   itemBuilder: (context, index) =>
                                       _buildListItem(context,
-                                          snapshot.data.documents[index]),
+                                          snapshot.data[index]),
                                   separatorBuilder: (context, index) {
                                     return Divider();
                                   },
@@ -213,22 +232,26 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
                                 ),
                               ),
                               Container(
-                                child: ListView.builder(
-                                  itemExtent: 80.0,
-                                  itemCount: snapshot.data.documents.length,
+                                child: ListView.separated(
+                                  itemCount: snapshot.data.length,
                                   itemBuilder: (context, index) =>
                                       _buildListItem(context,
-                                          snapshot.data.documents[index]),
+                                          snapshot.data[index]),
+                                  separatorBuilder: (context, index) {
+                                    return Divider();
+                                  },
                                   shrinkWrap: true,
                                 ),
                               ),
                               Container(
-                                child: ListView.builder(
-                                  itemExtent: 80.0,
-                                  itemCount: snapshot.data.documents.length,
+                                child: ListView.separated(
+                                  itemCount: snapshot.data.length,
                                   itemBuilder: (context, index) =>
                                       _buildListItem(context,
-                                          snapshot.data.documents[index]),
+                                          snapshot.data[index]),
+                                  separatorBuilder: (context, index) {
+                                    return Divider();
+                                  },
                                   shrinkWrap: true,
                                 ),
                               ),
