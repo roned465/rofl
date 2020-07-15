@@ -16,6 +16,7 @@ class createGroup extends StatefulWidget {
   final String time;
   final String date;
   final String location;
+  String groupname = "";
 
   @override
   _createGroupState createState() => new _createGroupState();
@@ -37,7 +38,18 @@ class _createGroupState extends State<createGroup> {
   List<String> invited_groups = [];
   List<String> invited_friends = [];
   bool _isChecked = false;
-  String groupname = "";
+
+
+  bool validateAndSave(var str) {
+    widget.groupname = str;
+    final form = formKey.currentState;
+    if (form.validate()) {
+      form.save();
+      return true;
+    }
+    return false;
+  }
+
 
   final tab = new TabBar(
       labelColor: Colors.deepOrange,
@@ -79,9 +91,22 @@ class _createGroupState extends State<createGroup> {
     )..show(context);
   }
 
+  void voteUpB(var str) {
+    print(str);
+    setState(() => widget.groupname = str);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GestureDetector(
+        onTap: () {
+          FocusScopeNode currentFocus = FocusScope.of(context);
+
+          if (!currentFocus.hasPrimaryFocus) {
+            currentFocus.unfocus();
+          }
+        },
+    child: MaterialApp(
       home: DefaultTabController(
         length: 2,
         child: Scaffold(
@@ -99,7 +124,13 @@ class _createGroupState extends State<createGroup> {
             ),
             leading: IconButton(
               icon: Icon(Icons.arrow_back),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () {
+                FocusScopeNode currentFocus = FocusScope.of(context);
+                if (!currentFocus.hasPrimaryFocus) {
+                  currentFocus.unfocus();
+                }
+
+                Navigator.of(context).pop();},
             ),
             iconTheme: new IconThemeData(color: Colors.deepOrange),
             flexibleSpace: Container(
@@ -113,14 +144,19 @@ class _createGroupState extends State<createGroup> {
           ),
           body:
           new TabBarView(
+
             children: [
               padded(child: TextFormField(
                   style: TextStyle(color: Colors.redAccent),
                   key: new Key('name'),
-                  initialValue: groupname,
-                  onSaved: (val) => groupname = val,
+                  onChanged: (val) {
+                    setState(() {
+                      widget.groupname = val;
+                    });
+                  },
+                  initialValue: widget.groupname,
                   cursorColor: Colors.deepOrange,
-                  keyboardType: TextInputType.emailAddress,
+                  keyboardType: TextInputType.text,
                   decoration: InputDecoration(
                     fillColor: Colors.deepOrange,
                     labelText: 'Profile name',
@@ -163,11 +199,11 @@ class _createGroupState extends State<createGroup> {
                 }
               }
 
-              if (invited_friends.length == 0) {
+              if (invited_friends.length == 0 || widget.groupname.length == 0) {
                 showFloatingFlushbar(context, "Group cant be empty");
               } else {
                 firestoreInstance.collection("Groups").add({
-                  "name": groupname,
+                  "name": widget.groupname,
                   "friends": invited_friends,
                 }).then((value) {
                   print(value.documentID);
@@ -179,6 +215,7 @@ class _createGroupState extends State<createGroup> {
           ),
         ),
       ),
+    ),
     );
   }
 }

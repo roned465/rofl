@@ -12,6 +12,7 @@ class LoginPage extends StatefulWidget {
   final String title;
   final BaseAuth auth;
   final VoidCallback onSignIn;
+  String uid;
 
   @override
   _LoginPageState createState() => new _LoginPageState();

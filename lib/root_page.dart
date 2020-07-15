@@ -21,11 +21,13 @@ enum AuthStatus {
 class _RootPageState extends State<RootPage> {
 
   AuthStatus authStatus = AuthStatus.loading;
+  String uid = "";
 
   initState() {
     super.initState();
     widget.auth.currentUser().then((userId) {
       setState(() {
+        uid = userId;
         authStatus = userId != null ? AuthStatus.signedIn : AuthStatus.notSignedIn;
       });
     });
@@ -52,6 +54,7 @@ class _RootPageState extends State<RootPage> {
         );
       case AuthStatus.signedIn:
         return new HomePage(
+          uid: uid,
           auth: widget.auth,
           onSignOut: () => _updateAuthStatus(AuthStatus.notSignedIn)
         );

@@ -9,9 +9,11 @@ import 'package:rofl/add_event.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'my_popup_menu.dart' as mypopup;
 
+
 class HomePage extends StatefulWidget {
-  HomePage({this.auth, this.onSignOut, Key key}) : super(key: key);
+  HomePage({this.auth, this.onSignOut, this.uid, Key key}) : super(key: key);
   final BaseAuth auth;
+  final String uid;
   final VoidCallback onSignOut;
 
   @override
@@ -314,7 +316,7 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => CreateEvent()));
+                              builder: (context) => CreateEvent(uid: widget.uid)));
                     })
               ]),
         ),

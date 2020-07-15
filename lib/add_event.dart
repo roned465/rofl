@@ -10,10 +10,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
 class CreateEvent extends StatefulWidget {
-  CreateEvent({Key key, this.title, this.auth, this.onSignIn})
+  CreateEvent({Key key, this.title, this.auth, this.onSignIn, this.uid})
       : super(key: key);
 
   final String title;
+  final String uid;
   final BaseAuth auth;
   final VoidCallback onSignIn;
 
@@ -88,6 +89,7 @@ class _CreateEventState extends State<CreateEvent> {
                         date: _date,
                         location: _Location,
                         time: _time,
+                        uid: widget.uid,
                       )));
         }
       } catch (e) {
@@ -331,7 +333,13 @@ class _CreateEventState extends State<CreateEvent> {
           ),
           leading: IconButton(
             icon: Icon(Icons.arrow_back),
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () {
+              FocusScopeNode currentFocus = FocusScope.of(context);
+              if (!currentFocus.hasPrimaryFocus) {
+                currentFocus.unfocus();
+              }
+
+              Navigator.of(context).pop();},
           ),
           iconTheme: new IconThemeData(color: Colors.deepOrange),
           flexibleSpace: Container(

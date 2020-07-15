@@ -5,17 +5,21 @@ import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'primary_button.dart';
 import 'auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
 class Invite extends StatefulWidget {
-  Invite({Key key, this.name, this.time, this.date, this.location})
+  Invite({Key key, this.name, this.time, this.date, this.location, this.uid})
       : super(key: key);
 
   final String name;
+  final String uid;
   final String time;
   final String date;
   final String location;
+
+
 
   @override
   _Invite createState() => new _Invite();
@@ -37,6 +41,8 @@ class _Invite extends State<Invite> {
   List<String> invited_groups = [];
   List<String> invited_friends = [];
   bool _isChecked = false;
+
+
 
   final tab = new TabBar(
       labelColor: Colors.deepOrange,
@@ -97,7 +103,13 @@ class _Invite extends State<Invite> {
             ),
             leading: IconButton(
               icon: Icon(Icons.arrow_back),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () {
+                FocusScopeNode currentFocus = FocusScope.of(context);
+                if (!currentFocus.hasPrimaryFocus) {
+                  currentFocus.unfocus();
+                }
+
+                Navigator.of(context).pop();},
             ),
             iconTheme: new IconThemeData(color: Colors.deepOrange),
             flexibleSpace: Container(
@@ -160,6 +172,7 @@ class _Invite extends State<Invite> {
               if (invited_friends.length == 0 && invited_groups.length == 0) {
                 showFloatingFlushbar(context, "You have to invite someone");
               } else {
+
                 firestoreInstance.collection("Events").add({
                   "groups": invited_groups,
                   "friends": invited_friends,
@@ -168,7 +181,9 @@ class _Invite extends State<Invite> {
                   "date": widget.date,
                   "time": widget.time,
                 }).then((value) {
-                  print(value.documentID);
+                  firestoreInstance.collection("userEvents").document(widget.uid).setData({
+                    "events": value.documentID,
+                  }, merge: true);
                   int count = 0;
                   Navigator.of(context).popUntil((_) => count++ >= 2);
                 });
