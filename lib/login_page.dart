@@ -80,7 +80,7 @@ class _LoginPageState extends State<LoginPage> {
           if (_password != _confirmpassword) {
             throw new PasswordsException();
           }
-          userId = await widget.auth.createUser(_email, _password);
+          userId = await widget.auth.createUser(_email, _password, _name);
         }
         setState(() {
           _authHint = 'Signed In\n\nUser id: $userId';
