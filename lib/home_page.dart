@@ -6,7 +6,6 @@ import 'auth.dart';
 import 'add_friends_groups.dart';
 import 'package:rofl/add_event.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:bubble/bubble.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({this.auth, this.onSignOut, Key key}) : super(key: key);
