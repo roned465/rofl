@@ -24,6 +24,7 @@ class Auth implements BaseAuth {
     String uid = await currentUser();
     firestoreInstance.collection("Users").document(uid).setData({
       "name": name,
+      "nameKey": name[0],
       "email": email,
     }).then((value) {
 
