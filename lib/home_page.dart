@@ -6,6 +6,7 @@ import 'auth.dart';
 import 'add_friends_groups.dart';
 import 'package:rofl/add_event.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'my_popup_menu.dart' as mypopup;
 
 class HomePage extends StatefulWidget {
   HomePage({this.auth, this.onSignOut, Key key}) : super(key: key);
@@ -16,6 +17,8 @@ class HomePage extends StatefulWidget {
   _HomePage createState() => _HomePage(auth, onSignOut);
 }
 
+enum WhyFarther { attend, decline, maybe }
+
 class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
   _HomePage(this.auth, this.onSignOut);
 
@@ -25,29 +28,98 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
   TabController _tabController;
   int tabIndex = 0;
 
+
   final List<Tab> myTabs = <Tab>[
     new Tab(
       icon: new Icon(Icons.event, color: Colors.deepOrange),
       text: "Events",
     ),
     new Tab(
-      icon: new Icon(Icons.group, color: Colors.deepOrange),
+      icon: new Icon(Icons.group, color: Colors.deepOrange, ),
       text: "Groups",
     ),
     new Tab(
-      icon: new Icon(Icons.account_circle, color: Colors.deepOrange),
+      icon: new Icon(Icons.account_circle, color: Colors.deepOrange, ),
       text: "Friends",
     ),
   ];
 
   Widget _buildListItem(BuildContext context, DocumentSnapshot document) {
     return Card(
-      color: Colors.deepOrange,
+      color: Colors.yellow[100],
       child: ListTile(
-        subtitle: Text(
-          "| location= " + document['location'] + "| time " + document['time'],
+        trailing: mypopup.PopupMenuButton<WhyFarther>(
+          onSelected: (WhyFarther result) {
+            setState(() {
+              print(result);
+            });
+          },
+          itemBuilder: (BuildContext context) => [
+            mypopup.PopupMenuItem<WhyFarther>(
+              value: WhyFarther.attend,
+              child: Container(
+                height: double.infinity,
+                width: double.infinity,
+                color: Colors.lightGreen,
+                // i use this to change the bgColor color right now
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Icon(Icons.check),
+                    SizedBox(width: 10.0),
+                    Text("  Accept", textAlign: TextAlign.left,),
+                    SizedBox(width: 10.0),
+                  ],
+                ),
+              ),
+            ),
+            mypopup.PopupMenuItem<WhyFarther>(
+              value: WhyFarther.maybe,
+              child: Container(
+                height: double.infinity,
+                width: double.infinity,
+                color: Colors.yellow,
+                // i use this to change the bgColor color right now
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Icon(Icons.access_alarm),
+                    SizedBox(width: 10.0),
+                    Text("  Maybe"),
+                    SizedBox(width: 10.0),
+                  ],
+                ),
+              ),
+            ),
+            mypopup.PopupMenuItem<WhyFarther>(
+              value: WhyFarther.decline,
+              child: Container(
+
+                height: double.infinity,
+                width: double.infinity,
+                color: Colors.red,
+                // i use this to change the bgColor color right now
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Icon(Icons.close),
+                    SizedBox(width: 10.0),
+                    Text("  Decline", textAlign: TextAlign.left,),
+                    SizedBox(width: 10.0),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
-        title: Text("name = " + document['name'],
+        leading: Text(
+          document['date'] + '\n' + document['time'],
+          textAlign: TextAlign.center,
+        ),
+        subtitle: Text(
+          'Loctaion: ' + document['location'],
+        ),
+        title: Text(document['name'],
             textAlign: TextAlign.left, style: TextStyle(fontSize: 20.0)),
       ),
     );
@@ -77,10 +149,12 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
     }
 
     return MaterialApp(
+      theme: ThemeData(cardColor: Colors.deepOrangeAccent),
       home: DefaultTabController(
         length: 3,
         child: Scaffold(
           appBar: new AppBar(
+
             centerTitle: true,
             title: new Text(
               "Home Page",
@@ -116,7 +190,7 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
               builder: (BuildContext context, snapshot) {
                 if (!snapshot.hasData) return const Text("Loading...");
                 return new SizedBox(
-                    height: 500,
+                    height: MediaQuery.of(context).size.height - 42 - MediaQuery.of(context).padding.bottom -AppBar().preferredSize.height - kToolbarHeight,
                     child: Column(
                       children: <Widget>[
                         Expanded(
@@ -195,10 +269,11 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
               ],
             ),
           ),
-          floatingActionButton: FabCircularMenu(
+
+          floatingActionButton: new FabCircularMenu(
               key: fabKey,
               fabOpenIcon:
-                  Icon(Icons.add, color: Colors.yellow[100], size: 30.0),
+              Icon(Icons.add, color: Colors.yellow[100], size: 30.0),
               fabCloseIcon: Icon(Icons.close, color: Colors.deepOrange),
               animationDuration: Duration(seconds: 1),
               ringColor: Colors.deepOrange,

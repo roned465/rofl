@@ -2,13 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flappy_search_bar/flappy_search_bar.dart';
 import 'package:flappy_search_bar/search_bar_style.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-class Post {
-  final String title;
-  final String description;
-
-  Post(this.title, this.description);
-}
+import 'package:rofl/search_service.dart';
 
 class AddFriends extends StatefulWidget {
   @override
@@ -16,65 +10,88 @@ class AddFriends extends StatefulWidget {
 }
 
 class _AddFriends extends State<AddFriends> {
-//class _AddFriends extends StatelessWidget {
-  BuildContext _buildContext;
-  DocumentSnapshot _document;
-  Future<List<Post>> search(String search) async {
-    await Future.delayed(Duration(seconds: 0));
-    if (search == "empty") return [];
-    if (search == "error") throw Error();
+  var queryResultSet = [];
+  var tempSearchStore = [];
 
-    return List.generate(search.length, (int index) {
-      return Post(
-        "Title : $search $index",
-        "Description :$search $index",
-      );
-    });
+  initiateSearch(value) {
+    if (value.length == 0) {
+      setState(() {
+        queryResultSet = [];
+        tempSearchStore = [];
+      });
+    }
+
+    var capitalizedValue = value.substring(0, 1) + value.substring(1);
+
+    if (queryResultSet.length == 0 && value.length == 1) {
+      SearchService().searchByName(value).then((QuerySnapshot docs) {
+        for (int i = 0; i < docs.documents.length; ++i) {
+          queryResultSet.add(docs.documents[i].data);
+        }
+      });
+    } else {
+      tempSearchStore = [];
+      queryResultSet.forEach((element) {
+        if (element['name'].startsWith(capitalizedValue)) {
+          setState(() {
+            print(element['name']);
+            tempSearchStore.add(element);
+          });
+        }
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: StreamBuilder(
-        stream: Firestore.instance.collection("Friends").snapshots(),
-        builder: (BuildContext context, snapshot) {
-          if (!snapshot.hasData) return const Text("Loading...");
-          return new SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: SearchBar<Post>(
-                searchBarStyle: SearchBarStyle(
-                  backgroundColor: Colors.yellow[100],
-                  padding: EdgeInsets.all(10),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                loader: Center(
-                  child: Text("My loader"),
-                ),
-                placeHolder: Center(
-                  child: Text("Placeholder"),
-                ),
-                onError: (error) {
-                  return Center(
-                    child: Text("Error occurred : $error"),
-                  );
-                },
-                emptyWidget: Center(
-                  child: Text("Empty"),
-                ),
-                onSearch: search,
-                //suggestions:
-                onItemFound: (Post post, int index) {
-                  return ListTile(
-                    title: Text(post.title),
-                    subtitle: Text(post.description),
-                  );
-                },
-              ),
+    return new Scaffold(
+        appBar: new AppBar(
+          title: Text('Firestore search'),
+        ),
+        body: ListView(children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: TextField(
+              onChanged: (val) {
+                initiateSearch(val);
+              },
+              decoration: InputDecoration(
+                  prefixIcon: IconButton(
+                    color: Colors.black,
+                    icon: Icon(Icons.search),
+                    iconSize: 20.0,
+                  ),
+                  contentPadding: EdgeInsets.only(left: 25.0),
+                  hintText: 'Search by name',
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(4.0))),
             ),
-          );
-        },
-      ),
-    );
+          ),
+          SizedBox(height: 10.0),
+          GridView.count(
+              padding: EdgeInsets.only(left: 10.0, right: 10.0),
+              crossAxisCount: 2,
+              crossAxisSpacing: 4.0,
+              mainAxisSpacing: 4.0,
+              primary: false,
+              shrinkWrap: true,
+              children: tempSearchStore.map((element) {
+                return buildResultCard(element);
+              }).toList())
+        ]));
   }
+}
+
+Widget buildResultCard(data) {
+  return Card(
+      color: Colors.yellow[100],
+      child: ListTile(
+          title: Text(
+        data['name'],
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: Colors.black,
+          fontSize: 20.0,
+        ),
+      )));
 }

@@ -176,7 +176,7 @@ class _CreateEventState extends State<CreateEvent> {
                             DateTime.now().month,
                             DateTime.now().day), onConfirm: (date) {
                       print('confirm $date');
-                      _date = '${date.year} - ${date.month} - ${date.day}';
+                      _date = ' ${date.day}/${date.month}/${date.year}';
                       setState(() {});
                     }, currentTime: DateTime.now(), locale: LocaleType.en);
                   },
@@ -236,9 +236,9 @@ class _CreateEventState extends State<CreateEvent> {
                         showSecondsColumn: false, onConfirm: (time) {
                       print('confirm $time');
                       if (time.minute > 9) {
-                        _time = '${time.hour} : ${time.minute}';
+                        _time = '${time.hour}:${time.minute}';
                       } else {
-                        _time = '${time.hour} : 0${time.minute}';
+                        _time = '${time.hour}:0${time.minute}';
                       }
                       setState(() {});
                     }, currentTime: DateTime.now(), locale: LocaleType.en);

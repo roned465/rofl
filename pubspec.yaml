@@ -8,6 +8,7 @@ dependencies:
   grouped_buttons: ^1.0.3
   gradient_app_bar: ^0.0.1
   fab_circular_menu: ^1.0.0
+  flutter_speed_dial: ^1.2.5
   flappy_search_bar: 1.4.1
   flutter_datetime_picker:
     git:
@@ -25,6 +26,7 @@ dev_dependencies:
   firebase_auth: 0.16.1
   rflutter_alert: ^1.0.2
   cloud_firestore:  ^0.13.4+2
+  dio: 1.0.0
   # new
 
 
