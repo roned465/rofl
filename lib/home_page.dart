@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:fab_circular_menu/fab_circular_menu.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -23,15 +25,6 @@ class HomePage extends StatefulWidget {
 enum WhyFarther { attend, decline, maybe }
 
 class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
-  Stream<List<QuerySnapshot>> getData() {
-    Stream stream1 = Firestore.instance.collection('Events').snapshots();
-    Stream stream2 = Firestore.instance
-        .collection('userEvents')
-        .document(widget.uid)
-        .snapshots();
-    return StreamZip([stream1, stream2]);
-  }
-
   _HomePage(this.auth, this.onSignOut);
 
   final GlobalKey<FabCircularMenuState> fabKey = GlobalKey();
@@ -61,134 +54,121 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
     ),
   ];
 
-  Future<Widget> _bids(String text) async {
-    await Firestore.instance
-        .collection('collection_name')
-        .where("document_id", isEqualTo: text)
-        .getDocuments()
-        .then((event) {
-      if (event.documents.isNotEmpty) {
-        Map<String, dynamic> documentData =
-            event.documents.single.data; //if it is a single document
-        return Text(documentData["name"]);
-      }
-      return Text("aids");
-    }).catchError((e) => print("error fetching data: $e"));
+  Stream<List<QuerySnapshot>> getData() async* {
+    var stream1 = await Firestore.instance.collection('Users').snapshots();
+    var stream2 = await Firestore.instance.collection('Groups').snapshots();
+    print("rofl" + stream2.toString());
+    yield List.from([stream1, stream2]);
   }
 
-  Widget _buildListItem(BuildContext context, DocumentSnapshot document, int index) {
+  Stream<List<DocumentSnapshot>> _streamer() async* {
+//    var document = await Firestore.instance.collection('Events').getDocuments();//.document('9SCCqThRmfPIuOQfKYiw').get();
+
+    var userEventsDocument = await Firestore.instance
+        .collection('userEvents')
+        .document(widget.uid)
+        .get();
+
+    var userEvents = List.from(userEventsDocument["eventlist"]);
+    List<DocumentSnapshot> eventsSnapshot = List();
+
+    for (var i = 0; i < userEvents.length; i++) {
+      eventsSnapshot.add(await userEvents[i].get());
+    }
+
+    yield eventsSnapshot;
+  }
+
+  Widget _buildListItem(BuildContext context, DocumentSnapshot document) {
     return Card(
       color: Colors.yellow[100],
-      child:
-      StreamBuilder(
-          stream: Firestore.instance.document("Events/" + rofl[index])
-              .snapshots(),
-          builder: (context, AsyncSnapshot eventSnapshot) {
-            if (!eventSnapshot.hasData) return Text("loading...");
-            return new ListTile(
-              trailing: mypopup.PopupMenuButton<WhyFarther>(
-                onSelected: (WhyFarther result) {
-                  setState(() {
-                    print(result);
-                  });
-                },
-                itemBuilder: (BuildContext context) =>
-                [
-                  mypopup.PopupMenuItem<WhyFarther>(
-                    value: WhyFarther.attend,
-                    child: Container(
-                      height: double.infinity,
-                      width: double.infinity,
-                      color: Colors.lightGreen,
-                      // i use this to change the bgColor color right now
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Icon(Icons.check),
-                          SizedBox(width: 10.0),
-                          Text(
-                            "  Accept",
-                            textAlign: TextAlign.left,
-                          ),
-                          SizedBox(width: 10.0),
-                        ],
-                      ),
+      child: ListTile(
+        trailing: mypopup.PopupMenuButton<WhyFarther>(
+          onSelected: (WhyFarther result) {
+            setState(() {
+              print(result);
+            });
+          },
+          itemBuilder: (BuildContext context) => [
+            mypopup.PopupMenuItem<WhyFarther>(
+              value: WhyFarther.attend,
+              child: Container(
+                height: double.infinity,
+                width: double.infinity,
+                color: Colors.lightGreen,
+                // i use this to change the bgColor color right now
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Icon(Icons.check),
+                    SizedBox(width: 10.0),
+                    Text(
+                      "  Accept",
+                      textAlign: TextAlign.left,
                     ),
-                  ),
-                  mypopup.PopupMenuItem<WhyFarther>(
-                    value: WhyFarther.maybe,
-                    child: Container(
-                      height: double.infinity,
-                      width: double.infinity,
-                      color: Colors.yellow,
-                      // i use this to change the bgColor color right now
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Icon(Icons.access_alarm),
-                          SizedBox(width: 10.0),
-                          Text("  Maybe"),
-                          SizedBox(width: 10.0),
-                        ],
-                      ),
+                    SizedBox(width: 10.0),
+                  ],
+                ),
+              ),
+            ),
+            mypopup.PopupMenuItem<WhyFarther>(
+              value: WhyFarther.maybe,
+              child: Container(
+                height: double.infinity,
+                width: double.infinity,
+                color: Colors.yellow,
+                // i use this to change the bgColor color right now
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Icon(Icons.access_alarm),
+                    SizedBox(width: 10.0),
+                    Text("  Maybe"),
+                    SizedBox(width: 10.0),
+                  ],
+                ),
+              ),
+            ),
+            mypopup.PopupMenuItem<WhyFarther>(
+              value: WhyFarther.decline,
+              child: Container(
+                height: double.infinity,
+                width: double.infinity,
+                color: Colors.red,
+                // i use this to change the bgColor color right now
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Icon(Icons.close),
+                    SizedBox(width: 10.0),
+                    Text(
+                      "  Decline",
+                      textAlign: TextAlign.left,
                     ),
-                  ),
-                  mypopup.PopupMenuItem<WhyFarther>(
-                    value: WhyFarther.decline,
-                    child: Container(
-                      height: double.infinity,
-                      width: double.infinity,
-                      color: Colors.red,
-                      // i use this to change the bgColor color right now
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Icon(Icons.close),
-                          SizedBox(width: 10.0),
-                          Text(
-                            "  Decline",
-                            textAlign: TextAlign.left,
-                          ),
-                          SizedBox(width: 10.0),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+                    SizedBox(width: 10.0),
+                  ],
+                ),
               ),
-              leading: Text(
-                eventSnapshot.data['date'] + '\n' + eventSnapshot.data['time'],
-                textAlign: TextAlign.center,
-              ),
-              subtitle: Text(
-                'Loctaion: ' + eventSnapshot.data['location'],
-              ),
-              title: eventSnapshot.data["name"],
-              //title: _bids("text"),
-            );
-          }
-     ),
+            ),
+          ],
+        ),
+        leading: Text(
+          document['date'] + '\n' + document['time'],
+          textAlign: TextAlign.center,
+        ),
+        subtitle: Text(
+          'Loctaion: ' + document['location'],
+        ),
+        title: Text(document['name'],
+            textAlign: TextAlign.left, style: TextStyle(fontSize: 20.0)),
+      ),
     );
   }
 
-  List<String> rofl;
-
   @override
   void initState() {
-    Firestore.instance.collection("userEvents").document(widget.uid).get().then((DocumentSnapshot string) {
-      print("rofl" + widget.uid);
-      if (string.data.isNotEmpty) {
-        print("i love guys");
-        rofl = List.from(string.data['eventlist']);
-        print("lol");
-        print(rofl[0].toString());
-      } else {
-        print("No such user");
-      }
-
-      super.initState();
-      _tabController = new TabController(vsync: this, length: myTabs.length);
-    });
+    super.initState();
+    _tabController = new TabController(vsync: this, length: myTabs.length);
   }
 
   @override
@@ -243,65 +223,86 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
               ),
             ],
           ),
-          body: Column(
-            children: <Widget>[
-              StreamBuilder(
-                  stream: Firestore.instance
-                      .collection("Events")
-                      .snapshots(),
-                  builder: (context, AsyncSnapshot eventSnapshot) {
-                    if (!eventSnapshot.hasData) return Text("loading...");
-                    return new SizedBox(
-                        height: MediaQuery.of(context).size.height -
-                            42 -
-                            MediaQuery.of(context).padding.bottom -
-                            AppBar().preferredSize.height -
-                            kToolbarHeight,
-                        child: Column(
-                          children: <Widget>[
-                            Expanded(
-                              child: TabBarView(
-                                controller: _tabController,
-                                children: <Widget>[
-                                  Container(
-                                    child: ListView.separated(
-                                      itemCount: rofl.length,
-                                      itemBuilder: (context, index) =>
-                                          _buildListItem(
-                                              context, eventSnapshot.data[index],index),
-                                      separatorBuilder: (context, index) {
-                                        return Divider();
-                                      },
-                                      shrinkWrap: true,
+          body: Column(children: <Widget>[
+            StreamBuilder(
+                stream: getData(),
+                builder: (BuildContext context,
+                    AsyncSnapshot<List<dynamic>> snapshot1) {
+                  if(snapshot1.data[0].documents.isEmpty) {
+                    return Text("loading...");
+
+                  }
+                  return StreamBuilder(
+                    stream: _streamer(),
+                    //Firestore.instance.collection("Events").snapshots(),
+                    builder: (BuildContext context,
+                        AsyncSnapshot<List<dynamic>> snapshot) {
+                      List<QuerySnapshot> querySnapshotData =
+                      List.from(snapshot1.data);
+
+                      //copy document snapshots from second stream to first so querySnapshotData[0].documents will have all documents from both query snapshots
+                      querySnapshotData[0]
+                          .documents
+                          .addAll(querySnapshotData[1].documents);
+                      print("here");
+                      if (!snapshot.hasData) return const Text("Loading...");
+                      return new SizedBox(
+                          height: MediaQuery.of(context).size.height -
+                              42 -
+                              MediaQuery.of(context).padding.bottom -
+                              AppBar().preferredSize.height -
+                              kToolbarHeight,
+                          child: Column(
+                            children: <Widget>[
+                              Expanded(
+                                child: TabBarView(
+                                  controller: _tabController,
+                                  children: <Widget>[
+                                    Container(
+                                      child: ListView.separated(
+                                        itemCount: snapshot.data.length,
+                                        itemBuilder: (context, index) =>
+                                            _buildListItem(
+                                                context, snapshot.data[index]),
+                                        separatorBuilder: (context, index) {
+                                          return Divider();
+                                        },
+                                        shrinkWrap: true,
+                                      ),
                                     ),
-                                  ),
-                                  Container(
-                                    child: ListView.builder(
-                                      itemExtent: 80.0,
-                                      itemCount: rofl.length,
-                                      itemBuilder: (context, index) =>
-                                          _buildListItem(
-                                              context, eventSnapshot.data[index],index),                                      shrinkWrap: true,
+                                    Container(
+                                      child: ListView.separated(
+                                        itemCount: snapshot.data.length,
+                                        itemBuilder: (context, index) =>
+                                            _buildListItem(
+                                                context, snapshot.data[index]),
+                                        separatorBuilder: (context, index) {
+                                          return Divider();
+                                        },
+                                        shrinkWrap: true,
+                                      ),
                                     ),
-                                  ),
-                                  Container(
-                                    child: ListView.builder(
-                                      itemExtent: 80.0,
-                                      itemCount: rofl.length,
-                                      itemBuilder: (context, index) =>
-                                          _buildListItem(
-                                              context, eventSnapshot.data[index],index),
-                                      shrinkWrap: true,
+                                    Container(
+                                      child: ListView.separated(
+                                        itemCount: snapshot.data.length,
+                                        itemBuilder: (context, index) =>
+                                            _buildListItem(
+                                                context, snapshot.data[index]),
+                                        separatorBuilder: (context, index) {
+                                          return Divider();
+                                        },
+                                        shrinkWrap: true,
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                            )
-                          ],
-                        ));
-                  }),
-            ],
-          ),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ));
+                    },
+                  );
+                }),
+          ]),
           drawer: Drawer(
             child: ListView(
               // Important: Remove any padding from the ListView.
