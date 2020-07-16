@@ -11,6 +11,9 @@ import 'package:rofl/add_event.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'my_popup_menu.dart' as mypopup;
 
+var userid;
+Widget eventlist;
+
 
 class HomePage extends StatefulWidget {
   HomePage({this.auth, this.onSignOut, this.uid, Key key}) : super(key: key);
@@ -33,123 +36,31 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
   TabController _tabController;
   int tabIndex = 0;
 
-
   final List<Tab> myTabs = <Tab>[
     new Tab(
       icon: new Icon(Icons.event, color: Colors.deepOrange),
       text: "Events",
     ),
     new Tab(
-      icon: new Icon(Icons.group, color: Colors.deepOrange, ),
+      icon: new Icon(
+        Icons.group,
+        color: Colors.deepOrange,
+      ),
       text: "Groups",
     ),
     new Tab(
-      icon: new Icon(Icons.account_circle, color: Colors.deepOrange, ),
+      icon: new Icon(
+        Icons.account_circle,
+        color: Colors.deepOrange,
+      ),
       text: "Friends",
     ),
   ];
 
-  Stream<List<DocumentSnapshot>> _userEventsStream = (() async* {
-//    var document = await Firestore.instance.collection('Events').getDocuments();//.document('9SCCqThRmfPIuOQfKYiw').get();
-
-
-    var userEventsDocument = await Firestore.instance.collection('userEvents').
-    document("X5OjtXMEG0R6CNTriDFLqmAe5R33").get();
-
-    var userEvents = List.from(userEventsDocument["eventlist"]);
-    List<DocumentSnapshot> eventsSnapshot = List();
-
-    for (var i = 0; i < userEvents.length; i++) {
-      eventsSnapshot.add(await userEvents[i].get());
-    }
-
-    yield eventsSnapshot;
-  })();
-
-  Widget _buildListItem(BuildContext context, DocumentSnapshot document) {
-    return Card(
-      color: Colors.yellow[100],
-      child: ListTile(
-        trailing: mypopup.PopupMenuButton<WhyFarther>(
-          onSelected: (WhyFarther result) {
-            setState(() {
-              print(result);
-            });
-          },
-          itemBuilder: (BuildContext context) => [
-            mypopup.PopupMenuItem<WhyFarther>(
-              value: WhyFarther.attend,
-              child: Container(
-                height: double.infinity,
-                width: double.infinity,
-                color: Colors.lightGreen,
-                // i use this to change the bgColor color right now
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Icon(Icons.check),
-                    SizedBox(width: 10.0),
-                    Text("  Accept", textAlign: TextAlign.left,),
-                    SizedBox(width: 10.0),
-                  ],
-                ),
-              ),
-            ),
-            mypopup.PopupMenuItem<WhyFarther>(
-              value: WhyFarther.maybe,
-              child: Container(
-                height: double.infinity,
-                width: double.infinity,
-                color: Colors.yellow,
-                // i use this to change the bgColor color right now
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Icon(Icons.access_alarm),
-                    SizedBox(width: 10.0),
-                    Text("  Maybe"),
-                    SizedBox(width: 10.0),
-                  ],
-                ),
-              ),
-            ),
-            mypopup.PopupMenuItem<WhyFarther>(
-              value: WhyFarther.decline,
-              child: Container(
-
-                height: double.infinity,
-                width: double.infinity,
-                color: Colors.red,
-                // i use this to change the bgColor color right now
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Icon(Icons.close),
-                    SizedBox(width: 10.0),
-                    Text("  Decline", textAlign: TextAlign.left,),
-                    SizedBox(width: 10.0),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-        leading: Text(
-          document['date'] + '\n' + document['time'],
-          textAlign: TextAlign.center,
-        ),
-        subtitle: Text(
-          'Loctaion: ' + document['location'],
-        ),
-        title: Text(document['name'],
-            textAlign: TextAlign.left, style: TextStyle(fontSize: 20.0)),
-      ),
-    );
-  }
-
   @override
   void initState() {
     super.initState();
+    userid = widget.uid;
     _tabController = new TabController(vsync: this, length: myTabs.length);
   }
 
@@ -176,7 +87,6 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
         length: 3,
         child: Scaffold(
           appBar: new AppBar(
-
             centerTitle: true,
             title: new Text(
               "Home Page",
@@ -206,63 +116,10 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
               ),
             ],
           ),
-          body: Column(children: <Widget>[
-            StreamBuilder(
-              stream: _userEventsStream,//Firestore.instance.collection("Events").snapshots(),
-              builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
-                if (!snapshot.hasData) return const Text("Loading...");
-                return new SizedBox(
-                    height: MediaQuery.of(context).size.height - 42 - MediaQuery.of(context).padding.bottom -AppBar().preferredSize.height - kToolbarHeight,
-                    child: Column(
-                      children: <Widget>[
-                        Expanded(
-                          child: TabBarView(
-                            controller: _tabController,
-                            children: <Widget>[
-                              Container(
-                                child: ListView.separated(
-                                  itemCount: snapshot.data.length,
-                                  itemBuilder: (context, index) =>
-                                      _buildListItem(context,
-                                          snapshot.data[index]),
-                                  separatorBuilder: (context, index) {
-                                    return Divider();
-                                  },
-                                  shrinkWrap: true,
-                                ),
-                              ),
-                              Container(
-                                child: ListView.separated(
-                                  itemCount: snapshot.data.length,
-                                  itemBuilder: (context, index) =>
-                                      _buildListItem(context,
-                                          snapshot.data[index]),
-                                  separatorBuilder: (context, index) {
-                                    return Divider();
-                                  },
-                                  shrinkWrap: true,
-                                ),
-                              ),
-                              Container(
-                                child: ListView.separated(
-                                  itemCount: snapshot.data.length,
-                                  itemBuilder: (context, index) =>
-                                      _buildListItem(context,
-                                          snapshot.data[index]),
-                                  separatorBuilder: (context, index) {
-                                    return Divider();
-                                  },
-                                  shrinkWrap: true,
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      ],
-                    ));
-              },
-            )
-          ]),
+          body: TabBarView(controller: _tabController, children:
+              [TestScreen1(), TestScreen2(), TestScreen3()],
+
+          ),
           drawer: Drawer(
             child: ListView(
               // Important: Remove any padding from the ListView.
@@ -295,11 +152,10 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
               ],
             ),
           ),
-
           floatingActionButton: new FabCircularMenu(
               key: fabKey,
               fabOpenIcon:
-              Icon(Icons.add, color: Colors.yellow[100], size: 30.0),
+                  Icon(Icons.add, color: Colors.yellow[100], size: 30.0),
               fabCloseIcon: Icon(Icons.close, color: Colors.deepOrange),
               animationDuration: Duration(seconds: 1),
               ringColor: Colors.deepOrange,
@@ -339,11 +195,249 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => CreateEvent(uid: widget.uid)));
+                              builder: (context) =>
+                                  CreateEvent(uid: widget.uid)));
                     })
               ]),
         ),
       ),
     );
   }
+}
+
+class TestScreen1 extends StatefulWidget {
+  @override
+  createState() => _TestScreen1State();
+}
+
+class _TestScreen1State extends State<TestScreen1> {
+  @override
+  void initState() {
+    super.initState();
+    print('initState TestScreen1');
+  }
+
+  @override
+  void dispose() {
+    print('dispose TestScreen1');
+
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+      stream: _streamer().asBroadcastStream(),
+      //Firestore.instance.collection("Events").snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
+        if (!snapshot.hasData) return eventlist;
+        return SizedBox(
+            height: MediaQuery.of(context).size.height -
+                42 -
+                MediaQuery.of(context).padding.bottom -
+                AppBar().preferredSize.height -
+                kToolbarHeight,
+            child: Column(
+              children: <Widget>[
+                Expanded(
+                  child: Container(
+                    child: ListView.separated(
+                      itemCount: snapshot.data.length,
+                      itemBuilder: (context, index) =>
+                          _buildListItem(context, snapshot.data[index]),
+                      separatorBuilder: (context, index) {
+                        return Divider();
+                      },
+                      shrinkWrap: true,
+                    ),
+                  ),
+                )
+              ],
+            ));
+      },
+    );
+  }
+}
+
+class TestScreen2 extends StatefulWidget {
+  @override
+  createState() => _TestScreen2State();
+}
+
+class _TestScreen2State extends State<TestScreen2> {
+  @override
+  void initState() {
+    super.initState();
+    print('initState TestScreen2');
+  }
+
+  @override
+  void dispose() {
+    print('dispose TestScreen2');
+
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+      stream: _streamer().asBroadcastStream(),
+      //Firestore.instance.collection("Events").snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
+        if (!snapshot.hasData) return eventlist;
+        eventlist = SizedBox(
+            height: MediaQuery.of(context).size.height -
+                42 -
+                MediaQuery.of(context).padding.bottom -
+                AppBar().preferredSize.height -
+                kToolbarHeight,
+            child: Column(
+              children: <Widget>[
+                Expanded(
+                  child: Container(
+                    child: ListView.separated(
+                      itemCount: snapshot.data.length,
+                      itemBuilder: (context, index) =>
+                          _buildListItem(context, snapshot.data[index]),
+                      separatorBuilder: (context, index) {
+                        return Divider();
+                      },
+                      shrinkWrap: true,
+                    ),
+                  ),
+                )
+              ],
+            ));
+        return eventlist;
+      },
+    );
+  }
+}
+
+class TestScreen3 extends StatefulWidget {
+  @override
+  createState() => _TestScreen3State();
+}
+
+class _TestScreen3State extends State<TestScreen3> {
+  @override
+  void initState() {
+    super.initState();
+    print('initState TestScreen3');
+  }
+
+  @override
+  void dispose() {
+    print('dispose TestScreen3');
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+        appBar: AppBar(
+          title: Text('Testing3'),
+        ),
+        body: Center(
+          child: Text("Test"),
+        ));
+  }
+}
+
+Stream<List<DocumentSnapshot>> _streamer() async* {
+//    var document = await Firestore.instance.collection('Events').getDocuments();//.document('9SCCqThRmfPIuOQfKYiw').get();
+
+  var userEventsDocument =
+      await Firestore.instance.collection('userEvents').document(userid).get();
+
+  var userEvents = List.from(userEventsDocument["eventlist"]);
+  List<DocumentSnapshot> eventsSnapshot = List();
+
+  for (var i = 0; i < userEvents.length; i++) {
+    eventsSnapshot.add(await userEvents[i].get());
+  }
+
+  yield eventsSnapshot;
+}
+
+Widget _buildListItem(BuildContext context, DocumentSnapshot document) {
+  return Card(
+    color: Colors.yellow[100],
+    child: ListTile(
+      trailing: mypopup.PopupMenuButton<WhyFarther>(
+        onSelected: (WhyFarther result) {},
+        itemBuilder: (BuildContext context) => [
+          mypopup.PopupMenuItem<WhyFarther>(
+            value: WhyFarther.attend,
+            child: Container(
+              height: double.infinity,
+              width: double.infinity,
+              color: Colors.lightGreen,
+              // i use this to change the bgColor color right now
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Icon(Icons.check),
+                  SizedBox(width: 10.0),
+                  Text(
+                    "  Accept",
+                    textAlign: TextAlign.left,
+                  ),
+                  SizedBox(width: 10.0),
+                ],
+              ),
+            ),
+          ),
+          mypopup.PopupMenuItem<WhyFarther>(
+            value: WhyFarther.maybe,
+            child: Container(
+              height: double.infinity,
+              width: double.infinity,
+              color: Colors.yellow,
+              // i use this to change the bgColor color right now
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Icon(Icons.access_alarm),
+                  SizedBox(width: 10.0),
+                  Text("  Maybe"),
+                  SizedBox(width: 10.0),
+                ],
+              ),
+            ),
+          ),
+          mypopup.PopupMenuItem<WhyFarther>(
+            value: WhyFarther.decline,
+            child: Container(
+              height: double.infinity,
+              width: double.infinity,
+              color: Colors.red,
+              // i use this to change the bgColor color right now
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Icon(Icons.close),
+                  SizedBox(width: 10.0),
+                  Text(
+                    "  Decline",
+                    textAlign: TextAlign.left,
+                  ),
+                  SizedBox(width: 10.0),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+      leading: Text(
+        document['date'] + '\n' + document['time'],
+        textAlign: TextAlign.center,
+      ),
+      subtitle: Text(
+        'Loctaion: ' + document['location'],
+      ),
+      title: Text(document['name'],
+          textAlign: TextAlign.left, style: TextStyle(fontSize: 20.0)),
+    ),
+  );
 }

@@ -10,6 +10,8 @@ dependencies:
   fab_circular_menu: ^1.0.0
   flutter_speed_dial: ^1.2.5
   flappy_search_bar: 1.4.1
+  bloc: ^3.0.0
+  flutter_bloc: ^3.2.0
   flutter_datetime_picker:
     git:
       url: https://github.com/derohimat/flutter_datetime_picker.git

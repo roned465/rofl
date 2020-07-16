@@ -181,9 +181,17 @@ class _Invite extends State<Invite> {
                   "date": widget.date,
                   "time": widget.time,
                 }).then((value) {
+                  String id = value.documentID;
                   firestoreInstance.collection("userEvents").document(widget.uid).setData({
-                    "events": value.documentID,
+
                   }, merge: true);
+                  DocumentReference documentReference =
+                  Firestore.instance.collection("Events").document(id);
+                  List idlist = [documentReference];
+                  firestoreInstance.collection("userEvents").document(widget.uid).updateData({
+                    "counter": FieldValue.increment(1),
+                    "eventlist": FieldValue.arrayUnion(idlist),
+                  });
                   int count = 0;
                   Navigator.of(context).popUntil((_) => count++ >= 2);
                 });

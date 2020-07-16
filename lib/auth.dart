@@ -21,6 +21,7 @@ class Auth implements BaseAuth {
 
   Future<String> createUser(String email, String password, String name) async {
     AuthResult user = await _firebaseAuth.createUserWithEmailAndPassword(email: email, password: password);
+
     String uid = await currentUser();
     firestoreInstance.collection("Users").document(uid).setData({
       "name": name,
