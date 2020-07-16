@@ -12,7 +12,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'my_popup_menu.dart' as mypopup;
 
 var userid;
-Widget eventlist;
+Widget eventlist = CircularProgressIndicator(
+);
 
 
 class HomePage extends StatefulWidget {
