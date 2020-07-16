@@ -32,6 +32,7 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
   final VoidCallback onSignOut;
   TabController _tabController;
   int tabIndex = 0;
+  var myEvents = null;
 
 
   final List<Tab> myTabs = <Tab>[
@@ -49,22 +50,20 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
     ),
   ];
 
-  Stream<List<DocumentSnapshot>> _userEventsStream = (() async* {
-//    var document = await Firestore.instance.collection('Events').getDocuments();//.document('9SCCqThRmfPIuOQfKYiw').get();
+  Stream<List<DocumentSnapshot>> _userEventsStream() async* {
+      var userEventsDocument = await Firestore.instance.collection('userEvents').
+      document("X5OjtXMEG0R6CNTriDFLqmAe5R33").get();
 
+      var userEvents = List.from(userEventsDocument["eventlist"]);
+      List<DocumentSnapshot> eventsSnapshot = List();
 
-    var userEventsDocument = await Firestore.instance.collection('userEvents').
-    document("X5OjtXMEG0R6CNTriDFLqmAe5R33").get();
+      for (var i = 0; i < userEvents.length; i++) {
+        eventsSnapshot.add(await userEvents[i].get());
+      }
 
-    var userEvents = List.from(userEventsDocument["eventlist"]);
-    List<DocumentSnapshot> eventsSnapshot = List();
+      yield eventsSnapshot;
+  }
 
-    for (var i = 0; i < userEvents.length; i++) {
-      eventsSnapshot.add(await userEvents[i].get());
-    }
-
-    yield eventsSnapshot;
-  })();
 
   Widget _buildListItem(BuildContext context, DocumentSnapshot document) {
     return Card(
@@ -206,62 +205,61 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
               ),
             ],
           ),
-          body: Column(children: <Widget>[
-            StreamBuilder(
-              stream: _userEventsStream,//Firestore.instance.collection("Events").snapshots(),
-              builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
-                if (!snapshot.hasData) return const Text("Loading...");
-                return new SizedBox(
-                    height: MediaQuery.of(context).size.height - 42 - MediaQuery.of(context).padding.bottom -AppBar().preferredSize.height - kToolbarHeight,
-                    child: Column(
-                      children: <Widget>[
-                        Expanded(
-                          child: TabBarView(
-                            controller: _tabController,
-                            children: <Widget>[
-                              Container(
-                                child: ListView.separated(
-                                  itemCount: snapshot.data.length,
-                                  itemBuilder: (context, index) =>
-                                      _buildListItem(context,
-                                          snapshot.data[index]),
-                                  separatorBuilder: (context, index) {
-                                    return Divider();
-                                  },
-                                  shrinkWrap: true,
-                                ),
-                              ),
-                              Container(
-                                child: ListView.separated(
-                                  itemCount: snapshot.data.length,
-                                  itemBuilder: (context, index) =>
-                                      _buildListItem(context,
-                                          snapshot.data[index]),
-                                  separatorBuilder: (context, index) {
-                                    return Divider();
-                                  },
-                                  shrinkWrap: true,
-                                ),
-                              ),
-                              Container(
-                                child: ListView.separated(
-                                  itemCount: snapshot.data.length,
-                                  itemBuilder: (context, index) =>
-                                      _buildListItem(context,
-                                          snapshot.data[index]),
-                                  separatorBuilder: (context, index) {
-                                    return Divider();
-                                  },
-                                  shrinkWrap: true,
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      ],
-                    ));
-              },
-            )
+          body: Column(
+            children: <Widget>[
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  children: <Widget>[
+                    Container(
+                      child: myEvents == null ? myEvents = StreamBuilder(
+                        stream: _userEventsStream(),
+                        builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
+                          if (!snapshot.hasData) return const Text("Loading...");
+                          return new SizedBox(
+                              height: MediaQuery.of(context).size.height - 42 - MediaQuery.of(context).padding.bottom -AppBar().preferredSize.height - kToolbarHeight,
+                              child: Column(
+                                children: <Widget>[
+                                  Expanded(
+                                    child:ListView.separated(
+                                      itemCount: snapshot.data.length,
+                                      itemBuilder: (context, index) =>
+                                          _buildListItem(context, snapshot.data[index]),
+                                      separatorBuilder: (context, index) {
+                                        return Divider();
+                                      },
+                                      shrinkWrap: true,
+                                    ),
+                                  )
+                                ],
+                              ));
+                        },
+                      ) : myEvents,
+                    ),
+                    Container(
+                      child: Text("Placeholder")
+                    ),
+                    Container(
+                      child: Text("Placeholder")
+                    ),
+                  ],
+                ),
+              ),
+//            StreamBuilder(
+//              stream: _userEventsStream(),//Firestore.instance.collection("Events").snapshots(),
+//              builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
+//                if (!snapshot.hasData) return const Text("Loading...");
+//                return new SizedBox(
+//                    height: MediaQuery.of(context).size.height - 42 - MediaQuery.of(context).padding.bottom -AppBar().preferredSize.height - kToolbarHeight,
+//                    child: Column(
+//                      children: <Widget>[
+//                        Expanded(
+//                          child:
+//                        )
+//                      ],
+//                    ));
+//              },
+//            )
           ]),
           drawer: Drawer(
             child: ListView(
