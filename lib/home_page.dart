@@ -64,6 +64,20 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
       yield eventsSnapshot;
   }
 
+  Future<List<DocumentSnapshot>> _getUserEvents() async {
+    var userEventsDocument = await Firestore.instance.collection('userEvents').
+    document("X5OjtXMEG0R6CNTriDFLqmAe5R33").get();
+
+    var userEvents = List.from(userEventsDocument["eventlist"]);
+    List<DocumentSnapshot> eventsSnapshot = List();
+
+    for (var i = 0; i < userEvents.length; i++) {
+      eventsSnapshot.add(await userEvents[i].get());
+    }
+
+    return eventsSnapshot;
+  }
+
 
   Widget _buildListItem(BuildContext context, DocumentSnapshot document) {
     return Card(
@@ -150,6 +164,11 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
   void initState() {
     super.initState();
     _tabController = new TabController(vsync: this, length: myTabs.length);
+    _getUserEvents().then((snapshots) => {
+      setState(() {
+      myEvents = snapshots;
+      })
+    });
   }
 
   @override
@@ -212,29 +231,25 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
                   controller: _tabController,
                   children: <Widget>[
                     Container(
-                      child: myEvents == null ? myEvents = StreamBuilder(
-                        stream: _userEventsStream(),
-                        builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
-                          if (!snapshot.hasData) return const Text("Loading...");
-                          return new SizedBox(
-                              height: MediaQuery.of(context).size.height - 42 - MediaQuery.of(context).padding.bottom -AppBar().preferredSize.height - kToolbarHeight,
-                              child: Column(
-                                children: <Widget>[
-                                  Expanded(
-                                    child:ListView.separated(
-                                      itemCount: snapshot.data.length,
-                                      itemBuilder: (context, index) =>
-                                          _buildListItem(context, snapshot.data[index]),
-                                      separatorBuilder: (context, index) {
-                                        return Divider();
-                                      },
-                                      shrinkWrap: true,
-                                    ),
-                                  )
-                                ],
-                              ));
-                        },
-                      ) : myEvents,
+                      child: myEvents == null ? Text("Loading...") :
+                      SizedBox(
+                          height: MediaQuery.of(context).size.height - 42 - MediaQuery.of(context).padding.bottom -AppBar().preferredSize.height - kToolbarHeight,
+                          child: Column(
+                            children: <Widget>[
+                              Expanded(
+                                child:ListView.separated(
+                                  itemCount: myEvents.length,
+                                  itemBuilder: (context, index) =>
+                                      _buildListItem(context, myEvents[index]),
+                                  separatorBuilder: (context, index) {
+                                    return Divider();
+                                  },
+                                  shrinkWrap: true,
+                                ),
+                              )
+                            ],
+                          ),
+                      ),
                     ),
                     Container(
                       child: Text("Placeholder")
