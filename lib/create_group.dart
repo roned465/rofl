@@ -2,21 +2,29 @@ import 'package:flushbar/flushbar.dart';
 import 'package:flushbar/flushbar_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:rofl/home_page.dart';
 import 'primary_button.dart';
 import 'auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'home_page.dart';
 final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
 class createGroup extends StatefulWidget {
-  createGroup({Key key, this.name, this.time, this.date, this.location})
-      : super(key: key);
+  List<String> _listfriends;
+  createGroup(List<String> friends,
+      {
+        Key key, this.name, this.time, this.date, this.location})
+
+      : super(key: key){
+    this._listfriends = friends;
+  }
 
   final String name;
   final String time;
   final String date;
   final String location;
   String groupname = "";
+
 
   @override
   _createGroupState createState() => new _createGroupState();
@@ -33,7 +41,6 @@ class _createGroupState extends State<createGroup> {
   static final formKey = new GlobalKey<FormState>();
   List<String> _listgroups = ['bhood', 'dabs', 'rofls','bhood', 'dabs', 'rofls','bhood', 'dabs', 'rofls','bhood', 'dabs', 'rofls','bhood', 'dabs', 'rofls'];
   List<bool> _groupschecked = List.filled(14, false);
-  List<String> _listfriends = ['shlomi', 'yojev', 'bhood', 'dabs', 'rofls' , 'bhood', 'dabs', 'rofls', 'bhood', 'dabs', 'rofls','bhood', 'dabs', 'rofls'];
   List<bool> _friendschecked = List.filled(14, false);
   List<String> invited_groups = [];
   List<String> invited_friends = [];
@@ -49,6 +56,11 @@ class _createGroupState extends State<createGroup> {
     }
     return false;
   }
+
+  void initState() {
+    super.initState();
+  }
+
 
 
   final tab = new TabBar(
@@ -170,14 +182,14 @@ class _createGroupState extends State<createGroup> {
                   )),
               ),
               new ListView(
-                children: _listfriends
+                children: widget._listfriends
                     .map((text) => CheckboxListTile(
                   activeColor: Colors.deepOrange,
                   title: Text(text),
-                  value: _friendschecked[_listfriends.indexOf(text)],
+                  value: _friendschecked[widget._listfriends.indexOf(text)],
                   onChanged: (val) {
                     setState(() {
-                      _friendschecked[_listfriends.indexOf(text)] = val;
+                      _friendschecked[widget._listfriends.indexOf(text)] = val;
                     });
                   },
                 ))
@@ -195,7 +207,7 @@ class _createGroupState extends State<createGroup> {
             onPressed: () {
               for (int i = 0; i < _friendschecked.length; i++) {
                 if (_friendschecked[i]) {
-                  invited_friends.add(_listfriends[i]);
+                  invited_friends.add(widget._listfriends[i]);
                 }
               }
 
@@ -206,7 +218,17 @@ class _createGroupState extends State<createGroup> {
                   "name": widget.groupname,
                   "friends": invited_friends,
                 }).then((value) {
-                  print(value.documentID);
+                  String id = value.documentID;
+                  firestoreInstance.collection("userGroups").document(userid).setData({
+
+                  }, merge: true);
+                  DocumentReference documentReference =
+                  Firestore.instance.collection("Groups").document(id);
+                  List idlist = [documentReference];
+                  firestoreInstance.collection("userGroups").document(userid).updateData({
+                    "counter": FieldValue.increment(1),
+                    "grouplist": FieldValue.arrayUnion(idlist),
+                  });
                   int count = 0;
                   Navigator.of(context).popUntil((_) => count++ >= 1);
                 });

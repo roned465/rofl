@@ -1,7 +1,9 @@
+
 import 'package:flutter/material.dart';
 import 'package:flappy_search_bar/flappy_search_bar.dart';
 import 'package:flappy_search_bar/search_bar_style.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:rofl/home_page.dart';
 import 'package:rofl/search_service.dart';
 import 'my_popup_menu.dart' as mypopup;
 
@@ -13,6 +15,7 @@ class AddFriends extends StatefulWidget {
 enum WhyFarther { addFriend }
 
 class _AddFriends extends State<AddFriends> {
+  final firestoreInstance = Firestore.instance;
   var queryResultSet = [];
   var tempSearchStore = [];
 
@@ -29,21 +32,21 @@ class _AddFriends extends State<AddFriends> {
     if (queryResultSet.length == 0 && value.length == 1) {
       SearchService().searchByName(value).then((QuerySnapshot docs) {
         for (int i = 0; i < docs.documents.length; ++i) {
-          queryResultSet.add(docs.documents[i].data);
+          queryResultSet.add(docs.documents[i]);
         }
       });
     } else {
       tempSearchStore = [];
       queryResultSet.forEach((element) {
-        if (element['name'].contains(capitalizedValue)) {
+        if (element.data['name'].contains(capitalizedValue)) {
           setState(() {
-            print(element['name']);
+            print(element.data['name']);
             tempSearchStore.add(element);
           });
         }
-        if (!(element['name'].startsWith(capitalizedValue))) {
+        if (!(element.data['name'].startsWith(capitalizedValue))) {
           setState(() {
-            tempSearchStore.remove(element['name']);
+            tempSearchStore.remove(element.data['name']);
           });
         }
       });
@@ -97,47 +100,63 @@ class _AddFriends extends State<AddFriends> {
               }).toList())
         ]));
   }
-}
 
-Widget buildResultCard(data) {
-  return Card(
-    color: Colors.yellow[100],
-    child: ListTile(
-      leading: Text(
-        "rofl",
-        textAlign: TextAlign.center,
-      ),
-      subtitle: Text(
-        'Loctaion: ',
-      ),
-      title: Text(data['name'],
-          textAlign: TextAlign.left, style: TextStyle(fontSize: 20.0)),
-      trailing: mypopup.PopupMenuButton<WhyFarther>(
-        onSelected: (WhyFarther result) {},
-        itemBuilder: (BuildContext context) => [
-          mypopup.PopupMenuItem<WhyFarther>(
-            value: WhyFarther.addFriend,
-            child: Container(
-              height: double.infinity,
-              width: double.infinity,
-              color: Colors.lightGreen,
-              // i use this to change the bgColor color right now
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Icon(Icons.check),
-                  SizedBox(width: 5.0),
-                  Text(
-                    "  AddFriend",
-                    textAlign: TextAlign.left,
-                  ),
-                  SizedBox(width: 5.0),
-                ],
+  Widget buildResultCard(data) {
+    return Card(
+      color: Colors.yellow[100],
+      child: ListTile(
+        leading: Text(
+          "rofl",
+          textAlign: TextAlign.center,
+        ),
+        subtitle: Text(
+          'Loctaion: ',
+        ),
+        title: Text(data['name'],
+            textAlign: TextAlign.left, style: TextStyle(fontSize: 20.0)),
+        trailing: mypopup.PopupMenuButton<WhyFarther>(
+          onSelected: (WhyFarther result) {
+            String id = data.documentID;
+            firestoreInstance.collection("userFriends").document(userid).setData({
+            }, merge: true);
+            print(userid);
+            print("id" + id);
+            DocumentReference documentReference = Firestore.instance
+                .collection("Users").document(id);
+            List idlist = [documentReference];
+            firestoreInstance
+                .collection("userFriends")
+                .document(userid)
+                .updateData({
+              "counter": FieldValue.increment(1),
+              "friendslist": FieldValue.arrayUnion(idlist),
+            });
+          },
+          itemBuilder: (BuildContext context) => [
+            mypopup.PopupMenuItem<WhyFarther>(
+              value: WhyFarther.addFriend,
+              child: Container(
+                height: double.infinity,
+                width: double.infinity,
+                color: Colors.lightGreen,
+                // i use this to change the bgColor color right now
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Icon(Icons.check),
+                    SizedBox(width: 5.0),
+                    Text(
+                      "  AddFriend",
+                      textAlign: TextAlign.left,
+                    ),
+                    SizedBox(width: 5.0),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
