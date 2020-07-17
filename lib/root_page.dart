@@ -34,8 +34,11 @@ class _RootPageState extends State<RootPage> {
   }
 
   void _updateAuthStatus(AuthStatus status) {
-    setState(() {
-      authStatus = status;
+    widget.auth.currentUser().then((userId) {
+      setState(() {
+        authStatus = status;
+        uid = userId;
+      });
     });
   }
 
