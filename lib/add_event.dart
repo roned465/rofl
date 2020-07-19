@@ -10,13 +10,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
 class CreateEvent extends StatefulWidget {
-  CreateEvent({Key key, this.title, this.auth, this.onSignIn, this.uid})
+  CreateEvent({Key key, this.title, this.auth, this.onSignIn, this.uid, this.listfriends, this.listgroups})
       : super(key: key);
-
+  final  List<String> listfriends;
   final String title;
   final String uid;
   final BaseAuth auth;
   final VoidCallback onSignIn;
+  final List<String> listgroups;
 
   @override
   _CreateEventState createState() => new _CreateEventState();
@@ -90,6 +91,8 @@ class _CreateEventState extends State<CreateEvent> {
                         location: _Location,
                         time: _time,
                         uid: widget.uid,
+                        listfriends: widget.listfriends,
+                    listgroups: widget.listgroups,
                       )));
         }
       } catch (e) {

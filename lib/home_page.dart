@@ -16,6 +16,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 var userid;
 Widget eventlist = CircularProgressIndicator();
 var _listfriends;
+var _listgroups;
 
 class HomePage extends StatefulWidget {
   HomePage({this.auth, this.onSignOut, this.uid, Key key}) : super(key: key);
@@ -228,6 +229,22 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
     return friendsSnapshot;
   }
 
+  Future<List<String>> _getUserGroupsNames() async {
+    var userFriendsDocument = await Firestore.instance
+        .collection('userGroups')
+        .document(userid)
+        .get();
+
+    var userFriends = List.from(userFriendsDocument["grouplist"]);
+    List<String> friendsSnapshot = List();
+
+    for (var i = 0; i < userFriends.length; i++) {
+      var friend = await userFriends[i].get();
+      friendsSnapshot.add(await friend["name"]);
+    }
+
+    return friendsSnapshot;
+  }
   @override
   void initState() {
     userid = widget.uid;
@@ -237,6 +254,11 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
             _listfriends = snapshots;
           })
         });
+    _getUserGroupsNames().then((snapshots) => {
+      setState(() {
+        _listgroups = snapshots;
+      })
+    });
     _getUserEvents().then((snapshots) => {
           setState(() {
             myEvents = snapshots;
@@ -517,7 +539,7 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
                           context,
                           MaterialPageRoute(
                               builder: (context) =>
-                                  CreateEvent(uid: widget.uid)));
+                                  CreateEvent(uid: widget.uid,listfriends: _listfriends, listgroups: _listgroups,)));
                     })
               ]),
         ),

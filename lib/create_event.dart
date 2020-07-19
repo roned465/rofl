@@ -10,16 +10,26 @@ import 'package:firebase_auth/firebase_auth.dart';
 final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
 class Invite extends StatefulWidget {
-  Invite({Key key, this.name, this.time, this.date, this.location, this.uid})
+  Invite(
+      {Key key,
+      this.name,
+      this.time,
+      this.date,
+      this.location,
+      this.listfriends,
+        this.uid,
+        this.listgroups
+      })
       : super(key: key);
 
+  final List<String> listfriends;
+  final List<String> listgroups;
   final String name;
-  final String uid;
   final String time;
+  final String uid;
   final String date;
   final String location;
-
-
+  String groupname = "";
 
   @override
   _Invite createState() => new _Invite();
@@ -34,27 +44,36 @@ class PasswordsException implements Exception {
 class _Invite extends State<Invite> {
   final firestoreInstance = Firestore.instance;
   static final formKey = new GlobalKey<FormState>();
-  List<String> _listgroups = ['bhood', 'dabs', 'rofls'];
-  List<bool> _groupschecked = List.filled(3, false);
-  List<String> _listfriends = ['shlomi', 'yojev'];
-  List<bool> _friendschecked = List.filled(3, false);
+  List<bool> _groupschecked = List.filled(14, false);
+  List<bool> _friendschecked = List.filled(14, false);
   List<String> invited_groups = [];
   List<String> invited_friends = [];
   bool _isChecked = false;
 
+  bool validateAndSave(var str) {
+    widget.groupname = str;
+    final form = formKey.currentState;
+    if (form.validate()) {
+      form.save();
+      return true;
+    }
+    return false;
+  }
 
+  void initState() {
+    super.initState();
+  }
 
   final tab = new TabBar(
       labelColor: Colors.deepOrange,
       indicatorColor: Colors.deepOrange,
       tabs: <Tab>[
         new Tab(
-          icon: new Icon(Icons.group, color: Colors.deepOrange),
-          text: "Groups",
-        ),
+            icon: new Icon(Icons.dashboard, color: Colors.deepOrange),
+            text: "Group details"),
         new Tab(
           icon: new Icon(Icons.account_circle, color: Colors.deepOrange),
-          text: "Friends",
+          text: "Invited friends",
         ),
       ]);
 
@@ -83,124 +102,154 @@ class _Invite extends State<Invite> {
     )..show(context);
   }
 
+  void voteUpB(var str) {
+    print(str);
+    setState(() => widget.groupname = str);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: DefaultTabController(
-        length: 2,
-        child: Scaffold(
-          appBar: new AppBar(
-            centerTitle: true,
-            title: new Text(
-              'Invite ',
-              style: TextStyle(
-                fontSize: 40,
-                foreground: Paint()
-                  ..style = PaintingStyle.fill
-                  ..strokeWidth = 1
-                  ..color = Colors.red[700],
+    return GestureDetector(
+        onTap: () {
+          FocusScopeNode currentFocus = FocusScope.of(context);
+
+          if (!currentFocus.hasPrimaryFocus) {
+            currentFocus.unfocus();
+          }
+        },
+        child: MaterialApp(
+          home: DefaultTabController(
+            length: 2,
+            child: Scaffold(
+              appBar: new AppBar(
+                centerTitle: true,
+                title: new Text(
+                  'Invite friends and groups ',
+                  style: TextStyle(
+                    fontSize: 40,
+                    foreground: Paint()
+                      ..style = PaintingStyle.fill
+                      ..strokeWidth = 1
+                      ..color = Colors.red[700],
+                  ),
+                ),
+                leading: IconButton(
+                  icon: Icon(Icons.arrow_back),
+                  onPressed: () {
+                    FocusScopeNode currentFocus = FocusScope.of(context);
+                    if (!currentFocus.hasPrimaryFocus) {
+                      currentFocus.unfocus();
+                    }
+
+                    Navigator.of(context).pop();
+                  },
+                ),
+                iconTheme: new IconThemeData(color: Colors.deepOrange),
+                flexibleSpace: Container(
+                  decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.topLeft,
+                          colors: <Color>[
+                        Colors.yellow[100],
+                        Colors.yellow[100]
+                      ])),
+                ),
+                bottom: tab,
+              ),
+              body: new TabBarView(
+                children: [
+                  padded(
+                    child: new ListView(
+                      children: widget.listgroups
+                          .map((text) => CheckboxListTile(
+                        activeColor: Colors.deepOrange,
+                        title: Text(text),
+                        value: _groupschecked[
+                        widget.listgroups.indexOf(text)],
+                        onChanged: (val) {
+                          setState(() {
+                            _groupschecked[
+                            widget.listgroups.indexOf(text)] = val;
+                          });
+                        },
+                      ))
+                          .toList(),
+                    ),
+
+                  ),
+                  new ListView(
+                    children: widget.listfriends
+                        .map((text) => CheckboxListTile(
+                              activeColor: Colors.deepOrange,
+                              title: Text(text),
+                              value: _friendschecked[
+                                  widget.listfriends.indexOf(text)],
+                              onChanged: (val) {
+                                setState(() {
+                                  _friendschecked[
+                                      widget.listfriends.indexOf(text)] = val;
+                                });
+                              },
+                            ))
+                        .toList(),
+                  ),
+                ],
+              ),
+              floatingActionButtonLocation:
+                  FloatingActionButtonLocation.centerFloat,
+              floatingActionButton: FloatingActionButton(
+                backgroundColor: Colors.deepOrangeAccent,
+                child: Icon(Icons.add_circle, color: Colors.yellow[100]),
+                onPressed: () {
+
+                  for (int i = 0; i < _groupschecked.length; i++) {
+                    if (_groupschecked[i]) {
+                      invited_groups.add(widget.listgroups[i]);
+                    }
+                  }
+                  for (int i = 0; i < _friendschecked.length; i++) {
+                    if (_friendschecked[i]) {
+                      invited_friends.add(widget.listfriends[i]);
+                    }
+                  }
+
+                  if (invited_friends.length == 0 ||
+                      invited_groups.length == 0) {
+                    showFloatingFlushbar(context, "Group cant be empty");
+                  } else {
+                    firestoreInstance.collection("Events").add({
+                      "groups": invited_groups,
+                      "friends": invited_friends,
+                      "name": widget.name,
+                      "location": widget.location,
+                      "date": widget.date,
+                      "time": widget.time,
+                    }).then((value) {
+                      String id = value.documentID;
+                      firestoreInstance
+                          .collection("userEvents")
+                          .document(widget.uid)
+                          .setData({}, merge: true);
+                      DocumentReference documentReference =
+                          Firestore.instance.collection("Events").document(id);
+                      List idlist = [documentReference];
+                      firestoreInstance
+                          .collection("userEvents")
+                          .document(widget.uid)
+                          .updateData({
+                        "counter": FieldValue.increment(1),
+                        "eventlist": FieldValue.arrayUnion(idlist),
+                      });
+                      int count = 0;
+                      Navigator.of(context).popUntil((_) => count++ >= 2);
+                    });
+                  }
+                },
               ),
             ),
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back),
-              onPressed: () {
-                FocusScopeNode currentFocus = FocusScope.of(context);
-                if (!currentFocus.hasPrimaryFocus) {
-                  currentFocus.unfocus();
-                }
-
-                Navigator.of(context).pop();},
-            ),
-            iconTheme: new IconThemeData(color: Colors.deepOrange),
-            flexibleSpace: Container(
-              decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.topLeft,
-                      colors: <Color>[Colors.yellow[100], Colors.yellow[100]])),
-            ),
-            bottom: tab,
           ),
-          body: new TabBarView(
-            children: [
-              new ListView(
-                children: _listgroups
-                    .map((text) => CheckboxListTile(
-                          activeColor: Colors.deepOrange,
-                          title: Text(text),
-                          value: _groupschecked[_listgroups.indexOf(text)],
-                          onChanged: (val) {
-                            setState(() {
-                              _groupschecked[_listgroups.indexOf(text)] = val;
-                            });
-                          },
-                        ))
-                    .toList(),
-              ),
-              new ListView(
-                children: _listfriends
-                    .map((text) => CheckboxListTile(
-                          activeColor: Colors.deepOrange,
-                          title: Text(text),
-                          value: _friendschecked[_listfriends.indexOf(text)],
-                          onChanged: (val) {
-                            setState(() {
-                              _friendschecked[_listfriends.indexOf(text)] = val;
-                            });
-                          },
-                        ))
-                    .toList(),
-              ),
-            ],
-          ),
-          floatingActionButtonLocation:
-              FloatingActionButtonLocation.centerFloat,
-          floatingActionButton: FloatingActionButton(
-            backgroundColor: Colors.deepOrangeAccent,
-            child: Icon(Icons.add_circle, color: Colors.yellow[100]),
-            onPressed: () {
-              for (int i = 0; i < _friendschecked.length; i++) {
-                if (_friendschecked[i]) {
-                  invited_friends.add(_listfriends[i]);
-                }
-              }
-              for (int i = 0; i < _groupschecked.length; i++) {
-                if (_groupschecked[i]) {
-                  invited_groups.add(_listgroups[i]);
-                }
-              }
-              if (invited_friends.length == 0 && invited_groups.length == 0) {
-                showFloatingFlushbar(context, "You have to invite someone");
-              } else {
-
-                firestoreInstance.collection("Events").add({
-                  "groups": invited_groups,
-                  "friends": invited_friends,
-                  "name": widget.name,
-                  "location": widget.location,
-                  "date": widget.date,
-                  "time": widget.time,
-                }).then((value) {
-                  String id = value.documentID;
-                  firestoreInstance.collection("userEvents").document(widget.uid).setData({
-
-                  }, merge: true);
-                  DocumentReference documentReference =
-                  Firestore.instance.collection("Events").document(id);
-                  List idlist = [documentReference];
-                  firestoreInstance.collection("userEvents").document(widget.uid).updateData({
-                    "counter": FieldValue.increment(1),
-                    "eventlist": FieldValue.arrayUnion(idlist),
-                  });
-                  int count = 0;
-                  Navigator.of(context).popUntil((_) => count++ >= 2);
-                });
-              }
-            },
-          ),
-        ),
-      ),
-    );
+        ));
   }
 }
 
