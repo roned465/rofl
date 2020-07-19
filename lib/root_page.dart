@@ -47,7 +47,7 @@ class _RootPageState extends State<RootPage> {
     switch (authStatus) {
       case AuthStatus.loading:
         return new Scaffold(
-
+          body: Image.asset('assets/option2.png'),
         );
       case AuthStatus.notSignedIn:
         return new LoginPage(

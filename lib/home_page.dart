@@ -11,6 +11,7 @@ import 'add_friends_groups.dart';
 import 'package:rofl/add_event.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'my_popup_menu.dart' as mypopup;
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 var userid;
 Widget eventlist = CircularProgressIndicator();
@@ -75,6 +76,7 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
     }
     return eventsSnapshot;
   }
+
   Future<List<DocumentSnapshot>> _getUserGroups() async {
     var userEventsDocument = await Firestore.instance
         .collection('userGroups')
@@ -105,7 +107,6 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
 
     return friendsSnapshot;
   }
-
 
   Widget _buildResultCard(data) {
     return Card(
@@ -209,6 +210,7 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
       ),
     );
   }
+
   Future<List<String>> _getUserFriendsNames() async {
     var userFriendsDocument = await Firestore.instance
         .collection('userFriends')
@@ -228,14 +230,13 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
 
   @override
   void initState() {
-    super.initState();
     userid = widget.uid;
     _tabController = new TabController(vsync: this, length: myTabs.length);
     _getUserFriendsNames().then((snapshots) => {
-      setState(() {
-        _listfriends = snapshots;
-      })
-    });
+          setState(() {
+            _listfriends = snapshots;
+          })
+        });
     _getUserEvents().then((snapshots) => {
           setState(() {
             myEvents = snapshots;
@@ -247,10 +248,12 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
           })
         });
     _getUserGroups().then((snapshots) => {
-      setState(() {
-        myGroups = snapshots;
-      })
-    });
+          setState(() {
+            myGroups = snapshots;
+          })
+        });
+
+    super.initState();
   }
 
   @override
@@ -269,6 +272,27 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
         print(e);
       }
     }
+
+    _getUserFriendsNames().then((snapshots) => {
+          setState(() {
+            _listfriends = snapshots;
+          })
+        });
+    _getUserEvents().then((snapshots) => {
+          setState(() {
+            myEvents = snapshots;
+          })
+        });
+    _getUserFriends().then((snapshots) => {
+          setState(() {
+            myFriends = snapshots;
+          })
+        });
+    _getUserGroups().then((snapshots) => {
+          setState(() {
+            myGroups = snapshots;
+          })
+        });
 
     return MaterialApp(
       theme: ThemeData(cardColor: Colors.deepOrangeAccent),
@@ -312,82 +336,91 @@ class _HomePage extends State<HomePage> with SingleTickerProviderStateMixin {
                 children: <Widget>[
                   Container(
                     child: myEvents == null
-                        ? Text("Loading...")
-                        : SizedBox(
-                      height: MediaQuery.of(context).size.height -
-                          42 -
-                          MediaQuery.of(context).padding.bottom -
-                          AppBar().preferredSize.height -
-                          kToolbarHeight,
-                      child: Column(
-                        children: <Widget>[
-                          Expanded(
-                            child: ListView.separated(
-                              itemCount: myEvents.length,
-                              itemBuilder: (context, index) =>
-                                  _buildListItem(
-                                      context, myEvents[index]),
-                              separatorBuilder: (context, index) {
-                                return Divider();
-                              },
-                              shrinkWrap: true,
-                            ),
+                        ? SpinKitFadingCube(
+                            color: Colors.deepOrangeAccent,
+                            size: 50.0,
                           )
-                        ],
-                      ),
-                    ),
+                        : SizedBox(
+                            height: MediaQuery.of(context).size.height -
+                                42 -
+                                MediaQuery.of(context).padding.bottom -
+                                AppBar().preferredSize.height -
+                                kToolbarHeight,
+                            child: Column(
+                              children: <Widget>[
+                                Expanded(
+                                  child: ListView.separated(
+                                    itemCount: myEvents.length,
+                                    itemBuilder: (context, index) =>
+                                        _buildListItem(
+                                            context, myEvents[index]),
+                                    separatorBuilder: (context, index) {
+                                      return Divider();
+                                    },
+                                    shrinkWrap: true,
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
                   ),
                   Container(
                     child: myGroups == null
-                        ? Text("Loading...")
+                        ? SpinKitFadingCube(
+                  color: Colors.deepOrangeAccent,
+                  size: 50.0,
+                  )
                         : SizedBox(
-                      height: MediaQuery.of(context).size.height -
-                          42 -
-                          MediaQuery.of(context).padding.bottom -
-                          AppBar().preferredSize.height -
-                          kToolbarHeight,
-                      child: Column(
-                        children: <Widget>[
-                          Expanded(
-                            child: ListView.separated(
-                              itemCount: myGroups.length,
-                              itemBuilder: (context, index) =>
-                                  _buildResultCard(myGroups[index]),
-                              separatorBuilder: (context, index) {
-                                return Divider();
-                              },
-                              shrinkWrap: true,
+                            height: MediaQuery.of(context).size.height -
+                                42 -
+                                MediaQuery.of(context).padding.bottom -
+                                AppBar().preferredSize.height -
+                                kToolbarHeight,
+                            child: Column(
+                              children: <Widget>[
+                                Expanded(
+                                  child: ListView.separated(
+                                    itemCount: myGroups.length,
+                                    itemBuilder: (context, index) =>
+                                        _buildResultCard(myGroups[index]),
+                                    separatorBuilder: (context, index) {
+                                      return Divider();
+                                    },
+                                    shrinkWrap: true,
+                                  ),
+                                )
+                              ],
                             ),
-                          )
-                        ],
-                      ),
-                    ),
+                          ),
                   ),
                   Container(
                     child: myFriends == null
-                        ? Text("Loading...")
+                        ? SpinKitFadingCube(
+    color: Colors.deepOrangeAccent,
+    size: 50.0,
+    )
                         : SizedBox(
-                      height: MediaQuery.of(context).size.height -
-                          42 -
-                          MediaQuery.of(context).padding.bottom -
-                          AppBar().preferredSize.height -
-                          kToolbarHeight,
-                      child: Column(
-                        children: <Widget>[
-                          Expanded(
-                            child: ListView.separated(
-                              itemCount: myFriends.length,
-                              itemBuilder: (context, index) =>
-                                  _buildResultCard(myFriends[index]),
-                              separatorBuilder: (context, index) {
-                                return Divider();
-                              },
-                              shrinkWrap: true,
+                            height: MediaQuery.of(context).size.height -
+                                42 -
+                                MediaQuery.of(context).padding.bottom -
+                                AppBar().preferredSize.height -
+                                kToolbarHeight,
+                            child: Column(
+                              children: <Widget>[
+                                Expanded(
+                                  child: ListView.separated(
+                                    itemCount: myFriends.length,
+                                    itemBuilder: (context, index) =>
+                                        _buildResultCard(myFriends[index]),
+                                    separatorBuilder: (context, index) {
+                                      return Divider();
+                                    },
+                                    shrinkWrap: true,
+                                  ),
+                                )
+                              ],
                             ),
-                          )
-                        ],
-                      ),
-                    ),
+                          ),
                   ),
                 ],
               ),
